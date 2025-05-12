@@ -1,0 +1,46 @@
+body {
+  background-color: #264653 !important;
+}
+
+* {
+  margin: 0;
+  padding: 0;
+}
+
+/* Header Styles */
+
+nav {
+  padding: 0 !important;
+}
+.header {
+  background-color: #2a9d8f !important;
+}
+
+.navbar-brand,
+.nav-link {
+  color: white !important;
+}
+
+.navbar-brand {
+  font-size: 3em !important;
+  color: white !important;
+}
+
+/* Buttons */
+
+.logoutBtn {
+  margin: auto;
+}
+
+.center-button {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 100px;
+}
+
+.btn {
+  background-color: #e76f51 !important;
+  border: #e76f51 !important;
+  font-size: 2em !important;
+}
