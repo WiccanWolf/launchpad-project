@@ -1,11 +1,27 @@
-import './App.css';
+import './stylesheet.css';
+import LoginButton from './components/LoginButton';
+import 'bootstrap/dist/css/bootstrap.min.css';
+import Home from './pages/Home';
+import { useAuth0 } from '@auth0/auth0-react';
+import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
+import Navbar from './components/Navbar';
 
 function App() {
+  const { isAuthenticated } = useAuth0();
+
   return (
-    <div className='bg-blue-500 text-white p-8'>
-      <h1 className='text-4xl font-bold'>Hello, Tailwind CSS!</h1>
-      <p>Welcome to your Vite + React + Tailwind setup.</p>
-    </div>
+    <Router>
+      <div>
+        <Navbar />
+        {isAuthenticated ? (
+          <Routes>
+            <Route path='/' element={<Home />} />
+          </Routes>
+        ) : (
+          <LoginButton />
+        )}
+      </div>
+    </Router>
   );
 }
 
