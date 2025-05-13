@@ -1,5 +1,5 @@
 body {
-  background-color: #264653 !important;
+  background-color: white !important;
 }
 
 * {
@@ -13,7 +13,7 @@ nav {
   padding: 0 !important;
 }
 .header {
-  background-color: #2a9d8f !important;
+  background-color: #355e3b !important;
 }
 
 .navbar-brand,
@@ -40,7 +40,36 @@ nav {
 }
 
 .btn {
-  background-color: #e76f51 !important;
-  border: #e76f51 !important;
   font-size: 2em !important;
+}
+
+.taupe {
+  background-color: #483c32;
+}
+.warm-sand {
+  background-color: #d4bfaa;
+}
+.chestnut {
+  background-color: #964b00;
+}
+.cocoa-brown {
+  background-color: #a9746e;
+}
+.coffee {
+  background-color: #4b3621;
+}
+.beige {
+  background-color: #f5f5dc;
+}
+
+.event-list {
+  position: absolute;
+  display: flex;
+  flex-direction: column;
+}
+
+ul {
+  padding: 0;
+  margin: 0;
+  list-style: none;
 }

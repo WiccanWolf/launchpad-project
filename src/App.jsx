@@ -1,12 +1,12 @@
 import './stylesheet.css';
-import LoginButton from './components/LoginButton';
 import 'bootstrap/dist/css/bootstrap.min.css';
+import LoginButton from './components/LoginButton';
 import Home from './pages/Home';
 import { useAuth0 } from '@auth0/auth0-react';
 import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
 import Navbar from './components/Navbar';
 
-function App() {
+const App = () => {
   const { isAuthenticated } = useAuth0();
 
   return (
@@ -23,6 +23,6 @@ function App() {
       </div>
     </Router>
   );
-}
+};
 
 export default App;

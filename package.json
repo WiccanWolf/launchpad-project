@@ -16,9 +16,12 @@
     "@tailwindcss/vite": "^4.1.6",
     "axios": "^1.9.0",
     "bootstrap": "^5.3.6",
+    "dotenv": "^16.5.0",
     "express": "^5.1.0",
+    "gapi-script": "^1.2.0",
     "ics-js": "^0.10.2",
     "react": "^19.1.0",
+    "react-bootstrap": "^2.10.10",
     "react-dom": "^19.1.0",
     "react-router-dom": "^7.6.0"
   },
