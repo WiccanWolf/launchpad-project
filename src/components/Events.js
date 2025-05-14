@@ -1,5 +1,3 @@
-import React from 'react';
-
 const Event = ({ description }) => {
   return (
     <div className='via-navy-500 mt-4 w-1/4 rounded-2x1 bg-gradient-to-r from-blue-500 to-purple-500 p-1 shadow-xl'>
