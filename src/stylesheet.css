@@ -43,23 +43,41 @@ nav {
   font-size: 2em !important;
 }
 
-.taupe {
-  background-color: #483c32;
+.coffee {
+  background-color: #3c2519;
+  color: white;
+  font-weight: bolder;
+  margin: 0;
 }
-.warm-sand {
-  background-color: #d4bfaa;
+.taupe {
+  background-color: #5c4033;
+  color: white;
+  font-weight: bolder;
+  margin: 0;
 }
 .chestnut {
-  background-color: #964b00;
+  background-color: #7b5e55;
+  color: white;
+  font-weight: bolder;
+  margin: 0;
 }
 .cocoa-brown {
-  background-color: #a9746e;
+  background-color: #a67b50;
+  color: white;
+  font-weight: bolder;
+  margin: 0;
 }
-.coffee {
-  background-color: #4b3621;
+.warm-sand {
+  background-color: #c4a484;
+  color: white;
+  font-weight: bolder;
+  margin: 0;
 }
 .beige {
-  background-color: #f5f5dc;
+  background-color: #d2b48c;
+  color: white;
+  font-weight: bolder;
+  margin: 0;
 }
 
 .event-list {
