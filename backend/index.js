@@ -1,6 +1,7 @@
 import express from 'express';
 import cors from 'cors';
-import ics from 'ics-js';
+import './loadEnvironment.mjs';
+import { events } from './routes/events';
 
 const app = express();
 
@@ -11,18 +12,6 @@ app.get('/', (req, res) => {
   res.status(200).send({ msg: 'Hello from the server!' });
 });
 
-app.get('/api/calendar.ics', (req, res) => {
-  const cal = ics.buildEvent({
-    title: 'Community Picnic',
-    start: [2025, 6, 1, 12, 0],
-    duration: { hours: 2 },
-    location: 'Village Green',
-    description: 'Join us for a picnic!',
-  });
-
-  res.setHeader('Content-Disposition', 'attachment; filename=event.ics');
-  res.setHeader('Content-Type', 'text/calendar');
-  res.send(cal);
-});
+app.use('/events', events);
 
 export default app;
