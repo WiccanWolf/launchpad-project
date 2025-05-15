@@ -17,10 +17,7 @@ const App = () => {
         {isAuthenticated ? (
           <Routes>
             <Route path='/' element={<Home />} />
-            <Route
-              path='/events'
-              element={<EventsPage baseUrl={import.meta.env.ATLAS_URI} />}
-            />
+            <Route path='/events' element={<EventsPage />} />
           </Routes>
         ) : (
           <LoginButton />
