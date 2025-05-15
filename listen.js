@@ -1,4 +1,4 @@
-import app from 'backend/index.js';
+import app from './backend/index.js';
 const PORT = process.env.PORT || 5100;
 
 app.listen(PORT, () =>
