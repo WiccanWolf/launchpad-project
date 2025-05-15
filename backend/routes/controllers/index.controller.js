@@ -1,4 +1,4 @@
-import { fetchEvents } from '../models/index.model';
+import { fetchEvents } from '../models/index.model.js';
 
 export const getEvents = (req, res) => {
   fetchEvents().then((events) => {

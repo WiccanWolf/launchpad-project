@@ -1,7 +1,7 @@
 import express from 'express';
 import cors from 'cors';
 import './loadEnvironment.mjs';
-import { getEvents } from './routes/controllers/index.controller';
+import { getEvents } from './routes/controllers/index.controller.js';
 
 const app = express();
 
