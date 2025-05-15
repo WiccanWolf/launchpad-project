@@ -1,5 +1,5 @@
-import { useEffect, useState } from 'react';
 import axios from 'axios';
+import { useEffect, useState } from 'react';
 
 const EventsPage = ({ baseUrl }) => {
   const [events, setEvents] = useState([]);
@@ -10,6 +10,7 @@ const EventsPage = ({ baseUrl }) => {
     const fetchEvents = async () => {
       try {
         const response = await axios.get(`${baseUrl}/events`);
+        console.log(`API response: ${response.data}`);
         setEvents(response.data);
       } catch (error) {
         console.error(`Error retrieving events: ${error}`);
@@ -27,6 +28,11 @@ const EventsPage = ({ baseUrl }) => {
   return (
     <>
       <h1>Events</h1>
+      <ul>
+        {events.map((event, index) => {
+          <li key={index}>{JSON.stringify(event)}</li>;
+        })}
+      </ul>
     </>
   );
 };
