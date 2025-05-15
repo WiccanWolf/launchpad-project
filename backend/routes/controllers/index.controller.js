@@ -1,7 +1,10 @@
-import { fetchEvents } from '../models/index.model.js';
+import EventModel from '../models/index.model.js';
 
 export const getEvents = (req, res) => {
-  fetchEvents().then((events) => {
-    res.status(200).send(events);
-  });
+  EventModel.find()
+    .then((events) => {
+      console.log(events);
+      res.json(events);
+    })
+    .catch((err) => res.json(err));
 };

@@ -1,10 +1,29 @@
-import db from '../../db/connection.js';
+import mongoose from 'mongoose';
 
-export const fetchEvents = async () => {
-  try {
-    let results = await db.find({});
-    return results;
-  } catch (err) {
-    console.error(`Error fetching events: ${err}`);
-  }
-};
+const EventSchema = new mongoose.Schema({
+  name: String,
+  description: String,
+  location: {
+    zip_code: String,
+    address: String,
+    city: String,
+  },
+  date: Date,
+});
+
+const OrganiserSchema = new mongoose.Schema(
+  {
+    timestamp_day: Date,
+    organiser: {
+      email: String,
+      firstName: String,
+      lastName: String,
+    },
+    events: [EventSchema],
+  },
+  { collection: 'Events' }
+);
+
+const EventModel = mongoose.model('Events', OrganiserSchema);
+
+export default EventModel;
