@@ -1,7 +1,7 @@
 import express from 'express';
 import cors from 'cors';
 import './loadEnvironment.mjs';
-import { events } from './routes/events';
+import { getEvents } from './routes/controllers/index.controller';
 
 const app = express();
 
@@ -12,6 +12,6 @@ app.get('/', (req, res) => {
   res.status(200).send({ msg: 'Hello from the server!' });
 });
 
-app.use('/events', events);
+app.get('/events', getEvents);
 
 export default app;

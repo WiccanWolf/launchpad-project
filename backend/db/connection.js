@@ -4,6 +4,7 @@ const client = new MongoClient(connectionString);
 let connect;
 try {
   connect = await client.connect();
+  console.log('Connected to the Database.');
 } catch (error) {
   console.error(error);
 }
