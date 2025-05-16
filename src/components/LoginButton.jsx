@@ -7,7 +7,7 @@ const LoginButton = () => {
     return (
       <>
         <div className='center-button'>
-          <Button variant='outline-dark' onClick={() => loginWithRedirect()}>
+          <Button variant='success' onClick={() => loginWithRedirect()}>
             Log In
           </Button>
         </div>

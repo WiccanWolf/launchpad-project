@@ -1,5 +1,6 @@
 import axios from 'axios';
 import { useEffect, useState } from 'react';
+import { Button } from 'react-bootstrap';
 
 const EventsPage = () => {
   const [events, setEvents] = useState([]);
@@ -23,6 +24,10 @@ const EventsPage = () => {
     fetchEvents();
   }, []);
 
+  useEffect(() => {
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }, [currentPage]);
+
   if (loading) return <p>Loading Event Data...</p>;
   if (error) return <p>Failed to Load Event Data.</p>;
 
@@ -35,57 +40,61 @@ const EventsPage = () => {
   return (
     <>
       <h1>Events</h1>
-      <ul>
-        {events.map((eventWrapper, index) => (
-          <li key={eventWrapper._id || index}>
-            <h2>
-              <strong>Organiser: </strong>
-              {eventWrapper.organiser.firstName}{' '}
-              {eventWrapper.organiser.lastName}
-            </h2>
-            <p>
-              Date of wrapper event:{' '}
-              {new Date(eventWrapper.timestamp_day).toLocaleDateString()}
-            </p>
-            <h3>
-              <strong>Individual Events</strong>
-            </h3>
-            <ul>
-              {eventWrapper.events.map((singleEvent) => (
-                <li key={singleEvent._id}>
-                  <strong>{singleEvent.name}</strong>
-                  <br />
-                  <em>{new Date(singleEvent.date).toLocaleDateString()}</em>
-                  <br />
-                  Location: {singleEvent.location.address},{' '}
-                  {singleEvent.location.city}, ({singleEvent.location.zip_code}){' '}
-                  <br />
-                  Description: {singleEvent.description}
-                </li>
-              ))}
-            </ul>
-          </li>
-        ))}
-      </ul>
-
-      <div>
-        <button
+      <div className='events-container'>
+        <ul>
+          {currentEvents.map((eventWrapper, index) => (
+            <li key={eventWrapper._id || index}>
+              <h2>
+                <strong>Organiser: </strong>
+                {eventWrapper.organiser.firstName}{' '}
+                {eventWrapper.organiser.lastName}
+              </h2>
+              <p>
+                Date of wrapper event:{' '}
+                {new Date(eventWrapper.timestamp_day).toLocaleDateString()}
+              </p>
+              <h3>
+                <strong>Individual Events</strong>
+              </h3>
+              <ul>
+                {eventWrapper.events.map((singleEvent) => (
+                  <li key={singleEvent._id}>
+                    <strong>{singleEvent.name}</strong>
+                    <br />
+                    <em>{new Date(singleEvent.date).toLocaleDateString()}</em>
+                    <br />
+                    Location: {singleEvent.location.address},{' '}
+                    {singleEvent.location.city}, (
+                    {singleEvent.location.zip_code}) <br />
+                    <img className='event-image' src={singleEvent.image} />
+                    Description: {singleEvent.description}
+                  </li>
+                ))}
+              </ul>
+            </li>
+          ))}
+        </ul>
+      </div>
+      <div className='pagination-controls'>
+        <Button
+          variant='success'
           onClick={() => setCurrentPage((prev) => Math.max(prev - 1, 1))}
           disabled={currentPage === 1}
         >
           Previous
-        </button>
+        </Button>
         <span>
           Page {currentPage} of {totalPages}
         </span>
-        <button
+        <Button
+          variant='success'
           onClick={() =>
             setCurrentPage((prev) => Math.min(prev + 1, totalPages))
           }
           disabled={currentPage === totalPages}
         >
           Next
-        </button>
+        </Button>
       </div>
     </>
   );
