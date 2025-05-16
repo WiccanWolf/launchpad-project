@@ -41,6 +41,7 @@ const seedDB = async () => {
             city: faker.location.city(),
           },
           date: faker.date.future(),
+          image: faker.image.url(),
         };
         newDay.events.push(newEvent);
       }
