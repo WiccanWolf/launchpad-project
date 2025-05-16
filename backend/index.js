@@ -10,7 +10,7 @@ const app = express();
 app.use(cors());
 app.use(express.json());
 
-mongoose.connect(process.env.ATLAS_URI, { dbName: 'events_sample' });
+mongoose.connect(process.env.HOSTED_URI, { dbName: 'events_sample' });
 
 app.get('/events', getEvents);
 
