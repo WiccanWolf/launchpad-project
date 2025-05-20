@@ -7,7 +7,7 @@ const Navbar = () => {
   return (
     <nav className='navbar navbar-expand-lg bg-body-tertiary'>
       <div className='container-fluid header'>
-        <a className='navbar-brand' href='#'>
+        <a className='navbar-brand' href='/'>
           Community Events Platform
         </a>
         <button
@@ -25,7 +25,11 @@ const Navbar = () => {
           <ul className='navbar-nav me-auto mb-2 mb-lg-0'>
             {isAuthenticated && (
               <li className='nav-item'>
-                <a className='nav-link active' aria-current='page' href='/'>
+                <a
+                  className='nav-link active'
+                  aria-current='page'
+                  href='/homepage'
+                >
                   Home
                 </a>
               </li>
