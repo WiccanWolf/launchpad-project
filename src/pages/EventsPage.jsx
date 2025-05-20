@@ -1,5 +1,4 @@
 import axios from 'axios';
-import { get } from 'mongoose';
 import { useEffect, useState } from 'react';
 import { Button } from 'react-bootstrap';
 
@@ -96,6 +95,7 @@ const EventsPage = ({ baseUrl }) => {
 
   const indexOfLastEvent = currentPage * eventsPerPage;
   const indexOfFirstEvent = indexOfLastEvent - eventsPerPage;
+  console.log(events);
   const currentEvents = events.slice(indexOfFirstEvent, indexOfLastEvent);
 
   const totalPages = Math.ceil(events.length / eventsPerPage);

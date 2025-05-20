@@ -18,9 +18,6 @@ app.use(express.json());
 
 mongoose.connect(process.env.ATLAS_URI, { dbName: 'events_sample' });
 
-app.use('/', (req, res) => {
-  res.status(200).json({ message: 'All okay' });
-});
 app.get('/events', getEvents);
 app.post('/events/:organiserId', addEvent);
 app.post('/events/:eventiD/signup', signUp);
