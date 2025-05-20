@@ -15,12 +15,7 @@ const EventSchema = new mongoose.Schema({
 const OrganiserSchema = new mongoose.Schema(
   {
     timestamp_day: Date,
-    organiser: {
-      email: String,
-      firstName: String,
-      lastName: String,
-      passwordHash: { type: String },
-    },
+    organiser: { type: mongoose.Schema.Types.ObjectId, ref: 'Staff' },
     events: [EventSchema],
   },
   { collection: 'Events' }
@@ -32,5 +27,14 @@ const EventSignupSchema = new mongoose.Schema({
   signupTime: { type: Date, default: Date.now },
 });
 
+const StaffSchema = new mongoose.Schema({
+  email: { type: String, required: true, unique: true },
+  firstName: String,
+  lastName: String,
+  passwordHash: { type: String, required: true },
+  role: { type: String, default: 'Staff' },
+});
+
+export const StaffModel = mongoose.model('Staff', StaffSchema);
 export const EventSignup = mongoose.model('EventSignup', EventSignupSchema);
 export const EventModel = mongoose.model('Events', OrganiserSchema);

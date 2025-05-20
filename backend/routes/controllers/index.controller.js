@@ -1,5 +1,5 @@
 import mongoose from 'mongoose';
-import EventModel, { EventSignup } from '../models/index.model.js';
+import EventModel, { EventSignup, StaffModel } from '../models/index.model.js';
 import { google } from 'googleapis';
 import EventsPage from '../../../src/pages/EventsPage.jsx';
 
@@ -81,16 +81,28 @@ export const addToGoogle = async (req, res) => {
 
 export const staffSignIn = async () => {
   const { email, password } = req.body;
+  try {
+    const staff = await StaffModel.findOne({ email: email });
 
-  const doc = await Events.findOne({ 'organiser.email': email });
-  if (!doc || !doc.organiser.passwordHash) {
-    return res.status(401).json({ message: 'Invalid Credentials' });
+    if (!staff || !staff.passwordHash) {
+      return res.status(401).json({ message: 'Invalid Credentials' });
+    }
+
+    const isMatching = await bcrypt.compare(password, staff.passwordHash);
+    if (!isMatching) {
+      return res.status(401).json({ message: 'Invalid Password' });
+    }
+
+    res.status(200).json({
+      message: 'Staff Login Successful',
+      staff: {
+        _id: staff._id,
+        email: staff.email,
+        name: staff.name,
+      },
+    });
+  } catch (err) {
+    console.error(`Login Error: ${err}`);
+    res.status(500).json({ message: 'Server Error During Login' });
   }
-  const isMatch = await bcrypt.compare(password, doc.organiser.passwordHash);
-  if (!isMatch) {
-    return res.status(401).json({ message: 'Incorrect Password' });
-  }
-  res
-    .status(200)
-    .json({ message: 'Staff login Successful', organiser: doc.organiser });
 };
