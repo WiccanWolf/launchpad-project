@@ -1,4 +1,7 @@
-import EventModel from '../models/index.model.js';
+import mongoose from 'mongoose';
+import EventModel, { EventSignup } from '../models/index.model.js';
+import { google } from 'googleapis';
+import EventsPage from '../../../src/pages/EventsPage.jsx';
 
 export const getEvents = (req, res) => {
   EventModel.find()
@@ -7,4 +10,87 @@ export const getEvents = (req, res) => {
       res.json(events);
     })
     .catch((err) => res.json(err));
+};
+
+export const addEvent = async (req, res) => {
+  const { organiserId } = req.params;
+  const newEvent = req.body;
+
+  if (!mongoose.isValidObjectId(organiserId)) {
+    return res.status(400).json({ error: 'Invalid organiser ID' });
+  }
+
+  try {
+    const updatedDoc = await EventModel.findByIdAndUpdate(
+      organiserId,
+      { $push: { events: newEvent } },
+      { new: true }
+    );
+
+    if (!updatedDoc) {
+      return res.status(404).json({ message: 'Organiser not found' });
+    }
+    res.status(200).json(updatedDoc);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+};
+
+export const signUp = async (req, res) => {
+  const { email } = req.body;
+  const { eventId } = req.param;
+
+  try {
+    const signup = new EventSignup({ email, eventId });
+    await signup.save();
+    res.status(200).json({ message: 'Signup successful' });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ message: 'Server Error during Signup' });
+  }
+};
+
+export const addToGoogle = async (req, res) => {
+  const { token, event } = req.body;
+
+  try {
+    const oauth2Client = new google.auth.OAuth2();
+    oauth2Client.setCredentials({ access_token: token });
+
+    const calendar = google.calendar({ version: 'v3', auth: oauth2Client });
+
+    const response = await calendar.events.insert({
+      calendarId: 'primary',
+      requestBody: {
+        summary: event.summary,
+        description: event.description,
+        location: event.location,
+        start: { dateTime: event.start },
+        end: { dateTime: event.end },
+      },
+    });
+    res.status(200).json({
+      message: 'Event added to google calendar',
+      eventLink: response.data.htmlLink,
+    });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ message: 'Failed to insert event' });
+  }
+};
+
+export const staffSignIn = async () => {
+  const { email, password } = req.body;
+
+  const doc = await Events.findOne({ 'organiser.email': email });
+  if (!doc || !doc.organiser.passwordHash) {
+    return res.status(401).json({ message: 'Invalid Credentials' });
+  }
+  const isMatch = await bcrypt.compare(password, doc.organiser.passwordHash);
+  if (!isMatch) {
+    return res.status(401).json({ message: 'Incorrect Password' });
+  }
+  res
+    .status(200)
+    .json({ message: 'Staff login Successful', organiser: doc.organiser });
 };

@@ -1,14 +1,15 @@
 import mongoose from 'mongoose';
 
 const EventSchema = new mongoose.Schema({
-  name: String,
+  name: { type: String, requried: true },
   description: String,
   location: {
     zip_code: String,
     address: String,
     city: String,
   },
-  date: Date,
+  date: { type: Date, required: true },
+  image: String,
 });
 
 const OrganiserSchema = new mongoose.Schema(
@@ -18,12 +19,18 @@ const OrganiserSchema = new mongoose.Schema(
       email: String,
       firstName: String,
       lastName: String,
+      passwordHash: { type: String },
     },
     events: [EventSchema],
   },
   { collection: 'Events' }
 );
 
-const EventModel = mongoose.model('Events', OrganiserSchema);
+const EventSignupSchema = new mongoose.Schema({
+  email: { type: String, required: true },
+  eventId: { type: mongoose.Schema.Types.ObjectId, ref: 'Event' },
+  signupTime: { type: Date, default: Date.now },
+});
 
-export default EventModel;
+export const EventSignup = mongoose.model('EventSignup', EventSignupSchema);
+export const EventModel = mongoose.model('Events', OrganiserSchema);

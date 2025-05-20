@@ -18,7 +18,7 @@ const seedDB = async () => {
 
     let timeSeriesData = [];
 
-    for (let i = 0; i < 500; i++) {
+    for (let i = 0; i < 10; i++) {
       const firstName = faker.person.firstName();
       const lastName = faker.person.lastName();
       let newDay = {
