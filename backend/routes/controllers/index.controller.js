@@ -1,5 +1,5 @@
 import mongoose from 'mongoose';
-import EventModel, { EventSignup, StaffModel } from '../models/index.model.js';
+import { EventModel, EventSignup, StaffModel } from '../models/index.model.js';
 import { google } from 'googleapis';
 
 export const getEvents = (req, res) => {
