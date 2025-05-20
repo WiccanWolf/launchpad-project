@@ -3,7 +3,7 @@ import { useState } from 'react';
 import { Button } from 'react-bootstrap';
 
 const LoginButton = ({ baseUrl }) => {
-  const { loginWithRedirect, isAuthenticated } = useAuth0();
+  const { loginWithRedirect, isAuthenticated, user } = useAuth0();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [message, setMessage] = useState('');
@@ -11,18 +11,23 @@ const LoginButton = ({ baseUrl }) => {
   const handleLogin = async (e) => {
     e.preventDefault();
 
-    const res = await fetch(`${baseUrl}staff-login`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ email, password }),
-    });
+    try {
+      const res = await fetch(`${baseUrl}staff-login`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email, password }),
+      });
+      const data = await res.json();
 
-    const data = await res.json();
-
-    if (res.ok) {
-      setMessage('Login successful');
-    } else {
-      setMessage(data.message || 'Login failed');
+      if (res.ok) {
+        setMessage('Login successful');
+        console.log(`Logged in Staff: ${data.staff}`);
+      } else {
+        setMessage(data.message || 'Login failed');
+      }
+    } catch (err) {
+      console.error(`Network Error: ${err}`);
+      setMessage(`Login failed: Network Error`);
     }
   };
   if (!isAuthenticated) {
@@ -65,6 +70,12 @@ const LoginButton = ({ baseUrl }) => {
       </>
     );
   }
+
+  return (
+    <div>
+      <p>Welcome, {user?.name || 'Staff Member'}!</p>
+    </div>
+  );
 };
 
 export default LoginButton;

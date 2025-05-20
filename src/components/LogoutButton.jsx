@@ -8,7 +8,11 @@ const LogoutButton = () => {
       <>
         <Button
           variant='success'
-          onClick={() => logout({ returnTo: window.location.origin })}
+          onClick={() =>
+            logout({
+              returnTo: `http://localhost:5173`,
+            })
+          }
         >
           Log Out
         </Button>
