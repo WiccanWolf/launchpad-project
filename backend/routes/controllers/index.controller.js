@@ -1,7 +1,6 @@
 import mongoose from 'mongoose';
 import EventModel, { EventSignup, StaffModel } from '../models/index.model.js';
 import { google } from 'googleapis';
-import EventsPage from '../../../src/pages/EventsPage.jsx';
 
 export const getEvents = (req, res) => {
   EventModel.find()
