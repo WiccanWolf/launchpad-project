@@ -1,12 +1,36 @@
-import './stylesheet.css';
-import 'bootstrap/dist/css/bootstrap.min.css';
-import LoginButton from './components/LoginButton';
-import Home from './pages/Home';
+import { ChakraProvider, Box } from '@chakra-ui/react';
 import { useAuth0 } from '@auth0/auth0-react';
 import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
 import Navbar from './components/Navbar';
+import LoginButton from './components/LoginButton';
+import Home from './pages/Home';
 import EventsPage from './pages/EventsPage';
 import EventDetails from './pages/EventDetails';
+import { extendBaseTheme, Center } from '@chakra-ui/react';
+
+const theme = extendBaseTheme({
+  colors: {
+    brand: {
+      50: '#F7F3F0',
+      100: '#E6D5C7',
+      200: '#D2B48C',
+      300: '#C4A484',
+      400: '#A67B50',
+      500: '#7B5E55',
+      600: '#5C4033',
+      700: '#3C2519',
+      800: '#2A1810',
+      900: '#1A0F0A',
+    },
+  },
+  components: {
+    Button: {
+      defaultProps: {
+        colorScheme: 'brand',
+      },
+    },
+  },
+});
 
 const baseUrl = import.meta.env.VITE_HOSTED_URI;
 
@@ -14,20 +38,29 @@ const App = () => {
   const { isAuthenticated } = useAuth0();
 
   return (
-    <Router>
-      <div>
-        <Navbar />
-        {isAuthenticated ? (
-          <Routes>
-            <Route path='/' element={<Home baseUrl={baseUrl} />} />
-            <Route path='/events' element={<EventsPage baseUrl={baseUrl} />} />
-            <Route path='/events/:eventId' element={<EventDetails />} />
-          </Routes>
-        ) : (
-          <LoginButton baseUrl={baseUrl} />
-        )}
-      </div>
-    </Router>
+    <ChakraProvider theme={theme}>
+      <Center minH='100vg' bg='brand.50' px={4}>
+        <Router>
+          <Box minH='100vh' bg='gray.50'>
+            <Navbar />
+            <Box as='main' pt='4'>
+              {isAuthenticated ? (
+                <Routes>
+                  <Route path='/' element={<Home baseUrl={baseUrl} />} />
+                  <Route
+                    path='/events'
+                    element={<EventsPage baseUrl={baseUrl} />}
+                  />
+                  <Route path='/events/:eventId' element={<EventDetails />} />
+                </Routes>
+              ) : (
+                <LoginButton baseUrl={baseUrl} />
+              )}
+            </Box>
+          </Box>
+        </Router>
+      </Center>
+    </ChakraProvider>
   );
 };
 

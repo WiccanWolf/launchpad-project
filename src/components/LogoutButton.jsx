@@ -1,25 +1,27 @@
 import { useAuth0 } from '@auth0/auth0-react';
-import { Button } from 'react-bootstrap';
+import { Button } from '@chakra-ui/react';
 
 const LogoutButton = () => {
   const { logout, isAuthenticated } = useAuth0();
+
   if (isAuthenticated) {
     return (
-      <>
-        <Button
-          variant='success'
-          onClick={() =>
-            logout({
-              returnTo: `http://localhost:5173`,
-            })
-          }
-        >
-          Log Out
-        </Button>
-        <br />
-      </>
+      <Button
+        variant='outline'
+        colorScheme='red'
+        size='sm'
+        onClick={() =>
+          logout({
+            returnTo: `http://localhost:5173`,
+          })
+        }
+      >
+        Log Out
+      </Button>
     );
   }
+
+  return null;
 };
 
 export default LogoutButton;

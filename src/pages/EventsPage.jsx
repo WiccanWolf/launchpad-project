@@ -1,6 +1,36 @@
 import axios from 'axios';
 import { useEffect, useState } from 'react';
-import { Button } from 'react-bootstrap';
+import {
+  Box,
+  Button,
+  Card,
+  CardBody,
+  CardHeader,
+  Container,
+  Flex,
+  Heading,
+  Text,
+  Input,
+  Image,
+  VStack,
+  HStack,
+  Badge,
+  Spinner,
+  Alert,
+  AlertIcon,
+  AlertDescription,
+  Divider,
+  SimpleGrid,
+  ButtonGroup,
+  FormControl,
+  FormLabel,
+  Collapse,
+  useDisclosure,
+  IconButton,
+  LinkBox,
+  LinkOverlay,
+} from '@chakra-ui/react';
+import { ExternalLinkIcon, CalendarIcon, DownloadIcon } from '@chakra-ui/icons';
 
 const EventsPage = ({ baseUrl }) => {
   const [showSignupFormId, setShowSignupFormId] = useState({});
@@ -38,37 +68,46 @@ const EventsPage = ({ baseUrl }) => {
     const pad = (n) => (n < 10 ? '0' + n : n);
 
     const formatICSDate = (date) => {
-      date.getUTCFullYear().toString() +
+      return (
+        date.getUTCFullYear().toString() +
         pad(date.getUTCMonth() + 1) +
         pad(date.getUTCDate()) +
         'T' +
         pad(date.getUTCHours()) +
         pad(date.getUTCMinutes()) +
         pad(date.getUTCSeconds()) +
-        'Z';
-
-      const icsContent = `BEGIN:VCALENDAR
-        VERSION:2.0
-        BEGIN:VEVENT
-        SUMMARY:${event.name}
-        DTSTART:${formatICSDate(start)}
-        DTEND:${formatICSDate(end)}
-        LOCATION:${event.location.address}, ${event.location.city}
-        DESCRIPTION:${event.description}
-        END:VEVENT
-        END:VCALENDAR`;
-
-      const blob = new Blob([icsContent], {
-        type: 'text/calendar;charset=utf-8',
-      });
-      const url = URL.createObjectURL(blob);
-      const link = document.createElement('a');
-      link.href = url;
-      link.download = `${event.name}.ics`;
-      document.body.appendChild(link);
-      link.click();
-      document.body.removeChild(link);
+        'Z'
+      );
     };
+
+    const icsContent = `BEGIN:VCALENDAR
+VERSION:2.0
+BEGIN:VEVENT
+SUMMARY:${event.name}
+DTSTART:${formatICSDate(start)}
+DTEND:${formatICSDate(end)}
+LOCATION:${event.location.address}, ${event.location.city}
+DESCRIPTION:${event.description}
+END:VEVENT
+END:VCALENDAR`;
+
+    const blob = new Blob([icsContent], {
+      type: 'text/calendar;charset=utf-8',
+    });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = `${event.name}.ics`;
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+  };
+
+  const handleSignup = (eventId, eventName) => {
+    console.log('Sign up email:', emailInput, 'for event:', eventId);
+    alert(`Signed up ${emailInput} for ${eventName}`);
+    setEmailInput('');
+    setShowSignupFormId(null);
   };
 
   useEffect(() => {
@@ -84,141 +123,278 @@ const EventsPage = ({ baseUrl }) => {
       }
     };
     fetchEvents();
-  }, []);
+  }, [baseUrl]);
 
   useEffect(() => {
     window.scrollTo({ top: 0, behavior: 'smooth' });
   }, [currentPage]);
 
-  if (loading) return <p>Loading Event Data...</p>;
-  if (error) return <p>Failed to Load Event Data.</p>;
+  if (loading) {
+    return (
+      <Container centerContent py={20}>
+        <VStack spacing={4}>
+          <Spinner size='xl' color='brand.500' thickness='4px' />
+          <Heading size='lg' color='gray.600'>
+            Loading Event Data...
+          </Heading>
+        </VStack>
+      </Container>
+    );
+  }
+
+  if (error) {
+    return (
+      <Container py={10}>
+        <Alert status='error' borderRadius='lg'>
+          <AlertIcon />
+          <AlertDescription>Failed to Load Event Data.</AlertDescription>
+        </Alert>
+      </Container>
+    );
+  }
 
   const indexOfLastEvent = currentPage * eventsPerPage;
   const indexOfFirstEvent = indexOfLastEvent - eventsPerPage;
-  console.log(events);
   const currentEvents = events.slice(indexOfFirstEvent, indexOfLastEvent);
-
   const totalPages = Math.ceil(events.length / eventsPerPage);
 
   return (
-    <>
-      <h1>Events</h1>
-      <div className='events-container'>
-        <ul>
+    <Container maxW='7xl' py={8}>
+      <VStack spacing={8} align='stretch'>
+        <Heading
+          size='2xl'
+          textAlign='center'
+          fontSize='2em'
+          color='brown.700'
+          mb={4}
+        >
+          Community Events
+        </Heading>
+
+        <VStack spacing={6} align='stretch'>
           {currentEvents.map((eventWrapper, index) => (
-            <li key={eventWrapper._id || index}>
-              <h2>
-                <strong>Organiser: </strong>
-                {eventWrapper.organiser.firstName}{' '}
-                {eventWrapper.organiser.lastName}
-              </h2>
-              <p>
-                Date of wrapper event:{' '}
-                {new Date(eventWrapper.timestamp_day).toLocaleDateString()}
-              </p>
-              <h3>
-                <strong>Individual Events</strong>
-              </h3>
-              <ul>
-                {eventWrapper.events.map((singleEvent) => (
-                  <li key={singleEvent._id}>
-                    <strong>{capitaliseFirstLetter(singleEvent.name)}</strong>
-                    <br />
-                    <em>{new Date(singleEvent.date).toLocaleDateString()}</em>
-                    <br />
-                    <strong>Location:</strong> {singleEvent.location.address},{' '}
-                    {singleEvent.location.city}, (
-                    {singleEvent.location.zip_code}) <br />
-                    <img className='event-image' src={singleEvent.image} />
-                    <strong>Description:</strong> {singleEvent.description}
-                    <div>
-                      <Button
-                        variant='info'
-                        onClick={() =>
-                          setShowSignupFormId(
-                            showSignupFormId === singleEvent._id
-                              ? null
-                              : singleEvent._id
-                          )
-                        }
+            <Card
+              p={3}
+              key={eventWrapper._id || index}
+              shadow='lg'
+              borderRadius='xl'
+            >
+              <CardHeader borderTopRadius='xl'>
+                <VStack align='start' spacing={2}>
+                  <Badge colorScheme='orange' fontSize='sm' fontWeight='bold'>
+                    Event Organiser
+                  </Badge>
+                  <Heading size='lg' fontStyle='italic' color='brown.700'>
+                    {eventWrapper.organiser.firstName}{' '}
+                    {eventWrapper.organiser.lastName}
+                  </Heading>
+                  <Text color='gray.600' fontSize='sm'>
+                    Event Date:{' '}
+                    {new Date(eventWrapper.timestamp_day).toLocaleDateString()}
+                  </Text>
+                </VStack>
+              </CardHeader>
+
+              <CardBody>
+                <VStack spacing={6} align='stretch'>
+                  <Heading size='md' color='brown.600'>
+                    Individual Events
+                  </Heading>
+
+                  <SimpleGrid columns={2} spacing={6}>
+                    {eventWrapper.events.map((singleEvent) => (
+                      <Card
+                        key={singleEvent._id}
+                        variant='outline'
+                        borderColor='brown.200'
+                        h='fit-content'
+                        p={4}
                       >
-                        Sign Up
-                      </Button>
-                      {showSignupFormId === singleEvent._id && (
-                        <div>
-                          <input
-                            type='email'
-                            placeholder='Enter your Email'
-                            value={emailInput}
-                            onChange={(e) => setEmailInput(e.target.value)}
-                          />
-                          <Button
-                            variant='primary'
-                            onClick={() => {
-                              console.log(
-                                'Sign up email:',
-                                emailInput,
-                                'for event:',
-                                singleEvent._id
-                              );
-                              alert(
-                                `Signed up ${emailInput} for ${singleEvent.name}`
-                              );
-                              setEmailInput('');
-                              setShowSignupFormId(null);
-                            }}
-                          >
-                            Confirm
-                          </Button>
-                          <div>
-                            <a
-                              href={generateGoogleCalendarUrl(singleEvent)}
-                              target='_blank'
-                              rel='noreferrer'
-                            >
-                              <Button variant='secondary'>
-                                Add to Google Calendar
+                        <CardBody>
+                          <VStack spacing={4} align='stretch'>
+                            {singleEvent.image && (
+                              <Image
+                                src={singleEvent.image}
+                                alt={singleEvent.name}
+                                borderRadius='md'
+                                h='100%'
+                                maxH='256px'
+                                objectFit='cover'
+                                w='full'
+                                maxW='512px'
+                              />
+                            )}
+
+                            <Heading size='md' color='brown.700'>
+                              {capitaliseFirstLetter(singleEvent.name)}
+                            </Heading>
+
+                            <Badge colorScheme='blue' alignSelf='start'>
+                              {new Date(singleEvent.date).toLocaleDateString()}
+                            </Badge>
+
+                            <Box>
+                              <Text
+                                fontWeight='semibold'
+                                color='gray.700'
+                                mb={1}
+                              >
+                                Location:
+                              </Text>
+                              <Text color='gray.600' fontSize='sm'>
+                                {singleEvent.location.address},{' '}
+                                {singleEvent.location.city}(
+                                {singleEvent.location.zip_code})
+                              </Text>
+                            </Box>
+
+                            <Box>
+                              <Text
+                                fontWeight='semibold'
+                                color='gray.700'
+                                mb={2}
+                              >
+                                Description:
+                              </Text>
+                              <Text
+                                color='gray.600'
+                                fontSize='sm'
+                                noOfLines={10}
+                                w='full'
+                                maxW='512px'
+                              >
+                                {singleEvent.description}
+                              </Text>
+                            </Box>
+
+                            <VStack spacing={3} align='stretch'>
+                              <Button
+                                colorScheme='brown'
+                                onClick={() =>
+                                  setShowSignupFormId(
+                                    showSignupFormId === singleEvent._id
+                                      ? null
+                                      : singleEvent._id
+                                  )
+                                }
+                                leftIcon={<CalendarIcon />}
+                                size='sm'
+                              >
+                                {showSignupFormId === singleEvent._id
+                                  ? 'Cancel'
+                                  : 'Sign Up'}
                               </Button>
-                            </a>
-                            <Button
-                              variant='secondary'
-                              onClick={() => downloadICS(singleEvent)}
-                            >
-                              Download .ics
-                            </Button>
-                          </div>
-                        </div>
-                      )}
-                    </div>
-                  </li>
-                ))}
-              </ul>
-            </li>
+
+                              <Collapse
+                                in={showSignupFormId === singleEvent._id}
+                              >
+                                <VStack
+                                  spacing={4}
+                                  p={4}
+                                  bg='gray.50'
+                                  borderRadius='md'
+                                >
+                                  <FormControl>
+                                    <FormLabel fontSize='sm'>
+                                      Email Address
+                                    </FormLabel>
+                                    <Input
+                                      type='email'
+                                      placeholder='Enter your email'
+                                      value={emailInput}
+                                      onChange={(e) =>
+                                        setEmailInput(e.target.value)
+                                      }
+                                      bg='white'
+                                      size='sm'
+                                    />
+                                  </FormControl>
+
+                                  <Button
+                                    colorScheme='green'
+                                    size='sm'
+                                    w='full'
+                                    onClick={() =>
+                                      handleSignup(
+                                        singleEvent._id,
+                                        singleEvent.name
+                                      )
+                                    }
+                                  >
+                                    Confirm Registration
+                                  </Button>
+
+                                  <Divider />
+
+                                  <VStack w='full' spacing={2}>
+                                    <Button
+                                      as='a'
+                                      href={generateGoogleCalendarUrl(
+                                        singleEvent
+                                      )}
+                                      target='_blank'
+                                      rel='noreferrer'
+                                      size='sm'
+                                      variant='outline'
+                                      colorScheme='brown'
+                                      w='full'
+                                      leftIcon={<ExternalLinkIcon />}
+                                    >
+                                      Google Calendar
+                                    </Button>
+                                    <Button
+                                      size='sm'
+                                      variant='outline'
+                                      colorScheme='brown'
+                                      w='full'
+                                      leftIcon={<DownloadIcon />}
+                                      onClick={() => downloadICS(singleEvent)}
+                                    >
+                                      Download .ics
+                                    </Button>
+                                  </VStack>
+                                </VStack>
+                              </Collapse>
+                            </VStack>
+                          </VStack>
+                        </CardBody>
+                      </Card>
+                    ))}
+                  </SimpleGrid>
+                </VStack>
+              </CardBody>
+            </Card>
           ))}
-        </ul>
-      </div>
-      <div className='pagination-controls'>
-        <Button
-          variant='success'
-          onClick={() => setCurrentPage((prev) => Math.max(prev - 1, 1))}
-          disabled={currentPage === 1}
-        >
-          Previous
-        </Button>
-        <span>
-          Page {currentPage} of {totalPages}
-        </span>
-        <Button
-          variant='success'
-          onClick={() =>
-            setCurrentPage((prev) => Math.min(prev + 1, totalPages))
-          }
-          disabled={currentPage === totalPages}
-        >
-          Next
-        </Button>
-      </div>
-    </>
+        </VStack>
+
+        {/* Pagination */}
+        <Flex justify='center' align='center' gap={4} pt={8}>
+          <Button
+            variant='outline'
+            colorScheme='brown'
+            onClick={() => setCurrentPage((prev) => Math.max(prev - 1, 1))}
+            isDisabled={currentPage === 1}
+          >
+            Previous
+          </Button>
+
+          <Badge colorScheme='brown' px={4} py={2} fontSize='md'>
+            Page {currentPage} of {totalPages}
+          </Badge>
+
+          <Button
+            variant='outline'
+            colorScheme='brown'
+            onClick={() =>
+              setCurrentPage((prev) => Math.min(prev + 1, totalPages))
+            }
+            isDisabled={currentPage === totalPages}
+          >
+            Next
+          </Button>
+        </Flex>
+      </VStack>
+    </Container>
   );
 };
 

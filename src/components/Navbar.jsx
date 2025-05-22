@@ -1,44 +1,90 @@
 import { useAuth0 } from '@auth0/auth0-react';
+import {
+  Box,
+  Flex,
+  Heading,
+  Spacer,
+  HStack,
+  Button,
+  useColorModeValue,
+  Container,
+  Link as ChakraLink,
+} from '@chakra-ui/react';
+import { Link as RouterLink } from 'react-router-dom';
 import LogoutButton from './LogoutButton';
 
 const Navbar = () => {
   const { isAuthenticated } = useAuth0();
+  const bgColor = useColorModeValue('white', 'gray.800');
+  const borderColor = useColorModeValue('gray.200', 'gray.700');
 
   return (
-    <nav className='navbar navbar-expand-lg bg-body-tertiary'>
-      <div className='container-fluid header'>
-        <a className='navbar-brand' href='/'>
-          Community Events Platform
-        </a>
-        <button
-          className='navbar-toggler'
-          type='button'
-          data-bs-toggle='collpase'
-          data-bs-target='#navbarSupportedContent'
-          aria-controls='navbarSupportedContent'
-          aria-expanded='false'
-          aria-label='Toggle navigation'
-        >
-          <span className='navbar-toggler-icon'></span>
-        </button>
-        <div className='collapse navbar-collapse' id='navbarSupportedContent'>
-          <ul className='navbar-nav me-auto mb-2 mb-lg-0'>
+    <Box
+      bg={bgColor}
+      px={4}
+      borderBottom='1px'
+      borderColor={borderColor}
+      shadow='sm'
+      position='sticky'
+      top={0}
+      zIndex={1000}
+    >
+      <Container maxW='7xl'>
+        <Flex h={16} alignItems='center'>
+          <ChakraLink
+            as={RouterLink}
+            to='/'
+            _hover={{ textDecoration: 'none' }}
+          >
+            <Heading size='lg' color='brand.700' fontWeight='bold'>
+              Community Events Platform
+            </Heading>
+          </ChakraLink>
+
+          <Spacer />
+
+          <HStack spacing={4}>
             {isAuthenticated && (
-              <li className='nav-item'>
-                <a
-                  className='nav-link active'
-                  aria-current='page'
-                  href='/homepage'
+              <>
+                <ChakraLink
+                  as={RouterLink}
+                  to='/'
+                  px={3}
+                  py={2}
+                  rounded='md'
+                  _hover={{
+                    textDecoration: 'none',
+                    bg: 'brand.50',
+                    color: 'brand.700',
+                  }}
+                  color='gray.600'
+                  fontWeight='medium'
                 >
                   Home
-                </a>
-              </li>
+                </ChakraLink>
+                <ChakraLink
+                  as={RouterLink}
+                  to='/events'
+                  px={3}
+                  py={2}
+                  rounded='md'
+                  _hover={{
+                    textDecoration: 'none',
+                    bg: 'brand.50',
+                    color: 'brand.700',
+                  }}
+                  color='gray.600'
+                  fontWeight='medium'
+                >
+                  Events
+                </ChakraLink>
+                <LogoutButton />
+              </>
             )}
-          </ul>
-          {isAuthenticated && <LogoutButton />}
-        </div>
-      </div>
-    </nav>
+          </HStack>
+        </Flex>
+      </Container>
+    </Box>
   );
 };
 
