@@ -6,9 +6,9 @@ import LoginButton from './components/LoginButton';
 import Home from './pages/Home';
 import EventsPage from './pages/EventsPage';
 import EventDetails from './pages/EventDetails';
-import { extendBaseTheme, Center } from '@chakra-ui/react';
+import { extendTheme, Center } from '@chakra-ui/react';
 
-const theme = extendBaseTheme({
+const theme = extendTheme({
   colors: {
     brand: {
       50: '#F7F3F0',

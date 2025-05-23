@@ -1,7 +1,20 @@
+import {
+  Box,
+  Button,
+  FormControl,
+  FormLabel,
+  Input,
+  Textarea,
+  VStack,
+  Heading,
+  useToast,
+} from '@chakra-ui/react';
 import axios from 'axios';
 import { useState } from 'react';
 
 const AddEventForm = ({ organiserId, baseUrl }) => {
+  const toast = useToast();
+
   const [form, setForm] = useState({
     name: '',
     description: '',
@@ -35,6 +48,13 @@ const AddEventForm = ({ organiserId, baseUrl }) => {
         newEvent
       );
       console.log(`Updated organiser document: ${response.data}`);
+      toast({
+        title: 'Event added.',
+        description: 'The event was successfully created.',
+        status: 'success',
+        duration: 3000,
+        isClosable: true,
+      });
       setForm({
         name: '',
         description: '',
@@ -44,55 +64,108 @@ const AddEventForm = ({ organiserId, baseUrl }) => {
       });
     } catch (err) {
       console.error(`Error adding event: ${err}`);
+      toast({
+        title: 'Error',
+        description: 'There was a problem adding the event.',
+        status: 'error',
+        duration: 3000,
+        isClosable: true,
+      });
     }
   };
 
   return (
-    <form onSubmit={handleSubmit}>
-      <input
-        name='name'
-        value={form.name}
-        onChange={handleChange}
-        placeholder='Event Name'
-      />
-      <input
-        name='date'
-        type='date'
-        value={form.date}
-        onChange={handleChange}
-      />
-      <input
-        name='zip_code'
-        value={form.location.zip_code}
-        onChange={handleChange}
-        placeholder='ZIP Code'
-      />
-      <input
-        name='address'
-        value={form.location.address}
-        onChange={handleChange}
-        placeholder='Address'
-      />
-      <input
-        name='city'
-        value={form.location.city}
-        onChange={handleChange}
-        placeholder='City'
-      />
-      <input
-        name='image'
-        value={form.image}
-        onChange={handleChange}
-        placeholder='Image URL'
-      />
-      <textarea
-        name='description'
-        value={form.description}
-        onChange={handleChange}
-        placeholder='Description'
-      />
-      <button type='submit'>Add Event</button>
-    </form>
+    <Box
+      maxW='md'
+      mx='auto'
+      mt={10}
+      p={6}
+      borderWidth={1}
+      borderRadius='lg'
+      boxShadow='md'
+    >
+      <Heading as='h2' size='lg' mb={6} textAlign='center'>
+        Add New Event
+      </Heading>
+      <form onSubmit={handleSubmit}>
+        <VStack spacing={4}>
+          <FormControl isRequired>
+            <FormLabel>Event Name</FormLabel>
+            <Input
+              name='name'
+              value={form.name}
+              onChange={handleChange}
+              placeholder='Event Name'
+            />
+          </FormControl>
+
+          <FormControl isRequired>
+            <FormLabel>Date</FormLabel>
+            <Input
+              type='date'
+              name='date'
+              value={form.date}
+              onChange={handleChange}
+            />
+          </FormControl>
+
+          <FormControl>
+            <FormLabel>ZIP Code</FormLabel>
+            <Input
+              name='zip_code'
+              value={form.location.zip_code}
+              onChange={handleChange}
+              placeholder='ZIP Code'
+            />
+          </FormControl>
+
+          <FormControl>
+            <FormLabel>Address</FormLabel>
+            <Input
+              name='address'
+              value={form.location.address}
+              onChange={handleChange}
+              placeholder='Address'
+            />
+          </FormControl>
+
+          <FormControl>
+            <FormLabel>City</FormLabel>
+            <Input
+              name='city'
+              value={form.location.city}
+              onChange={handleChange}
+              placeholder='City'
+            />
+          </FormControl>
+
+          <FormControl>
+            <FormLabel>Image URL</FormLabel>
+            <Input
+              name='image'
+              value={form.image}
+              onChange={handleChange}
+              placeholder='Image URL'
+            />
+          </FormControl>
+
+          <FormControl>
+            <FormLabel>Description</FormLabel>
+            <Textarea
+              name='description'
+              value={form.description}
+              onChange={handleChange}
+              placeholder='Description'
+              resize='vertical'
+            />
+          </FormControl>
+
+          <Button type='submit' colorScheme='brand' width='full'>
+            Add Event
+          </Button>
+        </VStack>
+      </form>
+    </Box>
   );
 };
 

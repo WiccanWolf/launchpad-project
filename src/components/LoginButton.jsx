@@ -9,14 +9,6 @@ import {
   Text,
   Card,
   CardBody,
-  Input,
-  FormControl,
-  FormLabel,
-  Alert,
-  AlertIcon,
-  AlertDescription,
-  Divider,
-  Center,
 } from '@chakra-ui/react';
 
 const LoginButton = ({ baseUrl }) => {

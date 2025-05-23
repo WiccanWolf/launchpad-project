@@ -13,7 +13,6 @@ import {
   Input,
   Image,
   VStack,
-  HStack,
   Badge,
   Spinner,
   Alert,
@@ -21,14 +20,9 @@ import {
   AlertDescription,
   Divider,
   SimpleGrid,
-  ButtonGroup,
   FormControl,
   FormLabel,
   Collapse,
-  useDisclosure,
-  IconButton,
-  LinkBox,
-  LinkOverlay,
 } from '@chakra-ui/react';
 import { ExternalLinkIcon, CalendarIcon, DownloadIcon } from '@chakra-ui/icons';
 
@@ -201,27 +195,32 @@ END:VCALENDAR`;
                     Individual Events
                   </Heading>
 
-                  <SimpleGrid columns={2} spacing={6}>
+                  <SimpleGrid columns={{ base: 1, lg: 2 }} spacing={6}>
                     {eventWrapper.events.map((singleEvent) => (
                       <Card
                         key={singleEvent._id}
                         variant='outline'
                         borderColor='brown.200'
-                        h='fit-content'
                         p={4}
+                        height='100%'
+                        display='flex'
+                        flexDirection='column'
                       >
-                        <CardBody>
-                          <VStack spacing={4} align='stretch'>
+                        <CardBody
+                          flex='1'
+                          display='flex'
+                          flexDirection='column'
+                        >
+                          <VStack spacing={4} align='stretch' flex='1'>
                             {singleEvent.image && (
                               <Image
                                 src={singleEvent.image}
                                 alt={singleEvent.name}
                                 borderRadius='md'
-                                h='100%'
-                                maxH='256px'
                                 objectFit='cover'
                                 w='full'
-                                maxW='512px'
+                                h='100%'
+                                maxH='10rem'
                               />
                             )}
 
@@ -269,7 +268,7 @@ END:VCALENDAR`;
 
                             <VStack spacing={3} align='stretch'>
                               <Button
-                                colorScheme='brown'
+                                colorScheme='brand'
                                 onClick={() =>
                                   setShowSignupFormId(
                                     showSignupFormId === singleEvent._id
@@ -336,7 +335,7 @@ END:VCALENDAR`;
                                       rel='noreferrer'
                                       size='sm'
                                       variant='outline'
-                                      colorScheme='brown'
+                                      colorScheme='brand'
                                       w='full'
                                       leftIcon={<ExternalLinkIcon />}
                                     >
@@ -345,7 +344,7 @@ END:VCALENDAR`;
                                     <Button
                                       size='sm'
                                       variant='outline'
-                                      colorScheme='brown'
+                                      colorScheme='brand'
                                       w='full'
                                       leftIcon={<DownloadIcon />}
                                       onClick={() => downloadICS(singleEvent)}
@@ -367,7 +366,6 @@ END:VCALENDAR`;
           ))}
         </VStack>
 
-        {/* Pagination */}
         <Flex justify='center' align='center' gap={4} pt={8}>
           <Button
             variant='outline'

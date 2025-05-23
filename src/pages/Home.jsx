@@ -17,8 +17,10 @@ import {
   Flex,
 } from '@chakra-ui/react';
 import { CalendarIcon, ExternalLinkIcon } from '@chakra-ui/icons';
+import { keyframes } from '@emotion/react';
 
 const Home = ({ baseUrl }) => {
+  const animation = keyframes`to {background-position: 200%};`;
   const [showForm, setShowForm] = useState(false);
 
   const colorPalette = [
@@ -39,14 +41,15 @@ const Home = ({ baseUrl }) => {
   return (
     <Container maxW='7xl' py={12}>
       <VStack spacing={12}>
-        {/* Hero Section */}
         <VStack spacing={6} textAlign='center'>
           <Heading
             size='4xl'
             bgGradient='linear(to-r, brand.600, brand.400)'
             bgClip='text'
-            fontSize='3em'
+            fontSize='6xl'
             fontWeight='extrabold'
+            backgroundSize='200% auto'
+            animation={`${animation} 7s ease-in-out infinite alternate`}
           >
             Welcome to Community Events
           </Heading>
@@ -56,7 +59,6 @@ const Home = ({ baseUrl }) => {
           </Text>
         </VStack>
 
-        {/* Action Cards */}
         <SimpleGrid
           columns={{ base: 1, md: 2 }}
           spacing={8}
@@ -133,7 +135,6 @@ const Home = ({ baseUrl }) => {
           </Card>
         </SimpleGrid>
 
-        {/* Add Event Form */}
         {showForm && (
           <Card w='full' maxW='2xl' shadow='xl' borderRadius='xl'>
             <CardBody p={8}>
@@ -142,7 +143,6 @@ const Home = ({ baseUrl }) => {
           </Card>
         )}
 
-        {/* Color Palette Section */}
         <VStack spacing={6} w='full' maxW='4xl'>
           <Heading size='lg' color='brand.700'>
             Brand Color Palette
@@ -174,7 +174,6 @@ const Home = ({ baseUrl }) => {
           </SimpleGrid>
         </VStack>
 
-        {/* Quick Stats */}
         <Card w='full' maxW='4xl' bg='brand.50' borderRadius='xl'>
           <CardBody p={8}>
             <Flex

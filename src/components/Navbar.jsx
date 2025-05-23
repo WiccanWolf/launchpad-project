@@ -5,7 +5,6 @@ import {
   Heading,
   Spacer,
   HStack,
-  Button,
   useColorModeValue,
   Container,
   Link as ChakraLink,
