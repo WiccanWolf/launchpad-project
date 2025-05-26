@@ -39,9 +39,12 @@ const AddEventForm = ({ baseUrl }) => {
     e.preventDefault();
 
     try {
-      console.log(`Submitting: ${form}`);
+      console.log(`Submitting: ${JSON.stringify(form, null, 2)}`);
       const response = await axios.post(`${baseUrl}events`, form, {
-        headers: { 'Content-Type': 'application/json' },
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${localStorage.getItem('token')}`,
+        },
         withCredentials: true,
       });
       console.log(`Event Added: ${response.data}`);
@@ -60,7 +63,11 @@ const AddEventForm = ({ baseUrl }) => {
         image: '',
       });
     } catch (err) {
-      console.error(`Error adding event: ${err}`);
+      console.error('Full Error: ', {
+        message: err.message,
+        response: err.response?.data,
+        config: err.config,
+      });
       toast({
         title: 'Error',
         description: 'There was a problem adding the event.',

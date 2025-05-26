@@ -29,23 +29,14 @@ export const getOrganisers = async (_req, res) => {
 };
 
 export const addEvent = async (req, res) => {
-  const { organiserId } = req.params;
-  const data = {
-    ...req.body,
-    date: new Date(req.body.date),
-    organiser: organiserId,
-  };
-
-  if (!mongoose.isValidObjectId(organiserId)) {
-    return res.status(400).json({ error: 'Invalid organiser ID' });
-  }
-
   try {
-    const saved = await EventModel.create(data);
-    await OrganiserModel.findByIdAndUpdate(organiserId, {
-      $push: { events: saved._id },
-    });
-    res.status(201).json(saved);
+    console.log('Incoming Data: ', req.body);
+    if (!req.body.name || !req.body.date) {
+      return res.status(400).json({
+        message: 'Missing Required Fields',
+        required: ['Name', 'Date'],
+      });
+    }
   } catch (err) {
     res.status(500).json({ error: err.message });
   }
