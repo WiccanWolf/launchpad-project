@@ -1,5 +1,10 @@
 import mongoose from 'mongoose';
-import { EventModel, EventSignup, StaffModel } from '../models/index.model.js';
+import {
+  EventModel,
+  OrganiserModel,
+  EventSignup,
+  StaffModel,
+} from '../models/index.model.js';
 import { google } from 'googleapis';
 
 export const getEvents = (req, res) => {
@@ -11,25 +16,36 @@ export const getEvents = (req, res) => {
     .catch((err) => res.json(err));
 };
 
+export const getOrganisers = async (_req, res) => {
+  try {
+    const organisers = await OrganiserModel.find()
+      .populate('organiser', 'firstName lastName')
+      .populate('events');
+    res.json(organisers);
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ message: 'Failed to load organisers' });
+  }
+};
+
 export const addEvent = async (req, res) => {
   const { organiserId } = req.params;
-  const newEvent = req.body;
+  const data = {
+    ...req.body,
+    date: new Date(req.body.date),
+    organiser: organiserId,
+  };
 
   if (!mongoose.isValidObjectId(organiserId)) {
     return res.status(400).json({ error: 'Invalid organiser ID' });
   }
 
   try {
-    const updatedDoc = await EventModel.findByIdAndUpdate(
-      organiserId,
-      { $push: { events: newEvent } },
-      { new: true }
-    );
-
-    if (!updatedDoc) {
-      return res.status(404).json({ message: 'Organiser not found' });
-    }
-    res.status(200).json(updatedDoc);
+    const saved = await EventModel.create(data);
+    await OrganiserModel.findByIdAndUpdate(organiserId, {
+      $push: { events: saved._id },
+    });
+    res.status(201).json(saved);
   } catch (err) {
     res.status(500).json({ error: err.message });
   }

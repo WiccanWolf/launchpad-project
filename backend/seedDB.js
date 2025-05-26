@@ -1,56 +1,73 @@
+import mongoose from 'mongoose';
 import { faker } from '@faker-js/faker';
-import { MongoClient } from 'mongodb';
 import dotenv from 'dotenv';
+import bcrypt from 'bcrypt';
+
+import {
+  StaffModel,
+  OrganiserModel,
+  EventModel,
+} from './routes/models/index.model.js';
+
 dotenv.config();
 
-const randomIntFromInterval = (min, max) => {
+const randomInt = (min, max) => {
   return Math.floor(Math.random() * (max - min + 1) + min);
 };
 
 const seedDB = async () => {
   const uri = process.env.ATLAS_URI;
-  const client = new MongoClient(uri);
 
   try {
-    await client.connect();
-    console.log('Connected correctly to server.');
-    const collection = client.db('events_sample').collection('Events');
+    await mongoose.connect(uri, { dbName: 'events_sample' });
+    console.log(`Connected to MongoDB.`);
 
-    let timeSeriesData = [];
+    await Promise.all([
+      StaffModel.deleteMany({}),
+      EventModel.deleteMany({}),
+      OrganiserModel.deleteMany({}),
+    ]);
 
     for (let i = 0; i < 10; i++) {
       const firstName = faker.person.firstName();
       const lastName = faker.person.lastName();
-      let newDay = {
-        timestamp_day: faker.date.past(),
-        organiser: {
-          email: faker.internet.email({ firstName, lastName }),
-          firstName,
-          lastName,
-        },
-        events: [],
-      };
+      const staff = await StaffModel.create({
+        email: faker.internet.email({ firstName, lastName }),
+        firstName,
+        lastName,
+        passwordHash: await bcrypt.hash('password123', 10),
+      });
 
-      for (let j = 0; j < randomIntFromInterval(1, 6); j++) {
-        let newEvent = {
-          name: faker.lorem.word(),
-          description: faker.lorem.paragraphs(2),
-          location: {
-            zip_code: faker.location.zipCode('######' || '#######'),
-            address: faker.location.streetAddress({ useFullAddress: true }),
-            city: faker.location.city(),
-          },
-          date: faker.date.future(),
-          image: faker.image.url(),
-        };
-        newDay.events.push(newEvent);
-      }
-      timeSeriesData.push(newDay);
+      const eventsData = Array.from({ length: randomInt(1, 6) }, () => ({
+        name: faker.lorem.words(3),
+        description: faker.lorem.paragraphs(2),
+        date: faker.date.future(),
+        image: faker.image.url(),
+        location: {
+          zip_code: faker.location.zipCode(),
+          address: faker.location.streetAddress(),
+          city: faker.location.city(),
+        },
+        organiser: staff._id,
+      }));
+      const createdEvents = await EventModel.insertMany(eventsData);
+      const eventIds = createdEvents.map((e) => e._id);
+
+      await OrganiserModel.create({
+        timestamp_day: new Date(),
+        organiser: staff._id,
+        events: eventIds,
+      });
+      console.log(
+        `Seeded organiser ${i + 1} with ${eventIds.length} event(s).`
+      );
     }
-    await collection.insertMany(timeSeriesData);
-    console.log('Database seeded with artificial data.');
+    console.log(`Database seeded successfully.`);
   } catch (err) {
-    console.error(err.stack);
+    console.error(`Seeding Error: ${err}`);
+  } finally {
+    await mongoose.disconnect();
+    console.log(`Disconnected from MongoDB`);
   }
 };
 

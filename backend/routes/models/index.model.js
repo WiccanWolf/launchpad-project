@@ -1,24 +1,28 @@
 import mongoose from 'mongoose';
 
-const EventSchema = new mongoose.Schema({
-  name: { type: String, requried: true },
-  description: String,
-  location: {
-    zip_code: String,
-    address: String,
-    city: String,
+const EventSchema = new mongoose.Schema(
+  {
+    name: { type: String, required: true },
+    description: String,
+    date: { type: Date, required: true },
+    image: String,
+    location: {
+      zip_code: String,
+      address: String,
+      city: String,
+    },
+    organiser: { type: mongoose.Schema.Types.ObjectId, ref: 'Organiser' },
   },
-  date: { type: Date, required: true },
-  image: String,
-});
+  { collection: 'events' }
+);
 
 const OrganiserSchema = new mongoose.Schema(
   {
     timestamp_day: Date,
     organiser: { type: mongoose.Schema.Types.ObjectId, ref: 'Staff' },
-    events: [EventSchema],
+    events: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Event' }],
   },
-  { collection: 'Events' }
+  { collection: 'Organisers' }
 );
 
 const EventSignupSchema = new mongoose.Schema({
@@ -35,6 +39,7 @@ const StaffSchema = new mongoose.Schema({
   role: { type: String, default: 'Staff' },
 });
 
-export const StaffModel = mongoose.model('Staff', StaffSchema);
+export const EventModel = mongoose.model('Events', EventSchema);
+export const OrganiserModel = mongoose.model('Organiser', OrganiserSchema);
 export const EventSignup = mongoose.model('EventSignup', EventSignupSchema);
-export const EventModel = mongoose.model('Events', OrganiserSchema);
+export const StaffModel = mongoose.model('Staff', StaffSchema);

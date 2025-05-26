@@ -7,6 +7,7 @@ import {
   addEvent,
   addToGoogle,
   getEvents,
+  getOrganisers,
   signUp,
   staffSignIn,
 } from './routes/controllers/index.controller.js';
@@ -19,6 +20,7 @@ app.use(express.json());
 mongoose.connect(process.env.ATLAS_URI, { dbName: 'events_sample' });
 
 app.get('/events', getEvents);
+app.get('/organisers', getOrganisers);
 app.post('/events/:organiserId', addEvent);
 app.post('/events/:eventiD/signup', signUp);
 app.post('/events/calendar', addToGoogle);
