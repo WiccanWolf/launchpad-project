@@ -16,18 +16,12 @@ const PORT = 5100;
 const app = express();
 app.use(
   cors({
-    origin: [
-      'http://localhost:5173',
-      'http://127.0.0.1:5173',
-      process.env.VITE_HOSTED_URI,
-    ],
+    origin: ['http://localhost:5173', 'http://127.0.0.1:5173'],
     methods: ['GET', 'POST', 'PUT', 'DELETE'],
     allowedHeaders: ['Content-Type', 'Authorization'],
     credentials: true,
   })
 );
-
-app.options('*', cors());
 app.use(express.json());
 
 mongoose.connect(process.env.ATLAS_URI, { dbName: 'events_sample' });
