@@ -18,9 +18,7 @@ export const getEvents = (req, res) => {
 
 export const getOrganisers = async (_req, res) => {
   try {
-    const organisers = await OrganiserModel.find()
-      .populate('organiser', 'firstName lastName')
-      .populate('events');
+    const organisers = await OrganiserModel.find();
     res.json(organisers);
   } catch (err) {
     console.error(err);
