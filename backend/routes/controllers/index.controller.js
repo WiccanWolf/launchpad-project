@@ -37,7 +37,22 @@ export const addEvent = async (req, res) => {
         required: ['Name', 'Date'],
       });
     }
-    res.status(201).json({ message: 'Event Added' });
+    const event = req.body;
+    const createdEvent = await EventModel.create({
+      name: event.name,
+      description: event.description,
+      date: new Date(event.date),
+      image: event.image,
+      location: {
+        zip_code: event.location.zip_code,
+        address: event.location.address,
+        city: event.location.city,
+      },
+      organiser: event.organiser,
+    }).then((result) => {
+      console.log(result);
+    });
+    res.status(201).json(createdEvent);
   } catch (err) {
     res.status(500).json({ error: err.message });
   }
