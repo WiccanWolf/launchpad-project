@@ -23,8 +23,11 @@ app.use(
     ],
     methods: ['GET', 'POST', 'PUT', 'DELETE'],
     allowedHeaders: ['Content-Type', 'Authorization'],
+    credentials: true,
   })
 );
+
+app.options('*', cors());
 app.use(express.json());
 
 mongoose.connect(process.env.ATLAS_URI, { dbName: 'events_sample' });

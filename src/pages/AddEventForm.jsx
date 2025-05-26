@@ -42,6 +42,7 @@ const AddEventForm = ({ baseUrl }) => {
       console.log(`Submitting: ${form}`);
       const response = await axios.post(`${baseUrl}events`, form, {
         headers: { 'Content-Type': 'application/json' },
+        withCredentials: true,
       });
       console.log(`Event Added: ${response.data}`);
       toast({
