@@ -12,7 +12,7 @@ import {
 import axios from 'axios';
 import { useState } from 'react';
 
-const AddEventForm = ({ organiserId, baseUrl }) => {
+const AddEventForm = ({ baseUrl }) => {
   const toast = useToast();
 
   const [form, setForm] = useState({
@@ -37,17 +37,13 @@ const AddEventForm = ({ organiserId, baseUrl }) => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    const newEvent = {
-      ...form,
-      date: new Date(form.date),
-    };
 
     try {
-      const response = await axios.post(
-        `${baseUrl}events/${organiserId}`,
-        newEvent
-      );
-      console.log(`Updated organiser document: ${response.data}`);
+      console.log(`Submitting: ${form}`);
+      const response = await axios.post(`${baseUrl}events`, form, {
+        headers: { 'Content-Type': 'application/json' },
+      });
+      console.log(`Event Added: ${response.data}`);
       toast({
         title: 'Event added.',
         description: 'The event was successfully created.',
