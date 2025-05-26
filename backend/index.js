@@ -14,7 +14,13 @@ import {
 
 const PORT = 5100;
 const app = express();
-app.use(cors());
+app.use(
+  cors({
+    origin: ['http://localhost:5173', process.env.VITE_HOSTED_URI],
+    methods: ['GET', 'POST', 'PUT', 'DELETE'],
+    allowedHeaders: ['Content-Type', 'Authorization'],
+  })
+);
 app.use(express.json());
 
 mongoose.connect(process.env.ATLAS_URI, { dbName: 'events_sample' });
@@ -22,6 +28,7 @@ mongoose.connect(process.env.ATLAS_URI, { dbName: 'events_sample' });
 app.get('/events', getEvents);
 app.get('/organisers', getOrganisers);
 app.post('/events', addEvent);
+app.post('/events/:organiserId', addEvent);
 app.post('/events/:eventiD/signup', signUp);
 app.post('/events/calendar', addToGoogle);
 app.post('/staff-login', staffSignIn);
