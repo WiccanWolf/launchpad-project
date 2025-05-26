@@ -39,7 +39,7 @@ const StaffSchema = new mongoose.Schema({
   role: { type: String, default: 'Staff' },
 });
 
-export const EventModel = mongoose.model('Events', EventSchema);
+export const EventModel = mongoose.model('Event', EventSchema);
 export const OrganiserModel = mongoose.model('Organiser', OrganiserSchema);
 export const EventSignup = mongoose.model('EventSignup', EventSignupSchema);
 export const StaffModel = mongoose.model('Staff', StaffSchema);

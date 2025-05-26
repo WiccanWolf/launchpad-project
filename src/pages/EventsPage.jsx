@@ -105,10 +105,11 @@ END:VCALENDAR`;
   };
 
   useEffect(() => {
-    const fetchEvents = async () => {
+    const fetchOrganisers = async () => {
       try {
-        const response = await axios.get(`${baseUrl}events`);
-        setEvents(response.data);
+        const response = await axios.get(`${baseUrl}organisers`);
+        console.log('API Response:', response.data); // Debug log
+        setEvents(response.data || []);
       } catch (error) {
         console.error(`Error retrieving events:`, error);
         setError(true);
@@ -116,7 +117,7 @@ END:VCALENDAR`;
         setLoading(false);
       }
     };
-    fetchEvents();
+    fetchOrganisers();
   }, [baseUrl]);
 
   useEffect(() => {
@@ -147,10 +148,31 @@ END:VCALENDAR`;
     );
   }
 
+  // Filter out organisers that don't have events or have invalid data
+  const validEvents = events.filter(
+    (eventWrapper) =>
+      eventWrapper &&
+      eventWrapper.events &&
+      Array.isArray(eventWrapper.events) &&
+      eventWrapper.events.length > 0 &&
+      eventWrapper.organiser
+  );
+
   const indexOfLastEvent = currentPage * eventsPerPage;
   const indexOfFirstEvent = indexOfLastEvent - eventsPerPage;
-  const currentEvents = events.slice(indexOfFirstEvent, indexOfLastEvent);
-  const totalPages = Math.ceil(events.length / eventsPerPage);
+  const currentEvents = validEvents.slice(indexOfFirstEvent, indexOfLastEvent);
+  const totalPages = Math.ceil(validEvents.length / eventsPerPage);
+
+  if (validEvents.length === 0) {
+    return (
+      <Container py={10}>
+        <Alert status='info' borderRadius='lg'>
+          <AlertIcon />
+          <AlertDescription>No events found.</AlertDescription>
+        </Alert>
+      </Container>
+    );
+  }
 
   return (
     <Container maxW='7xl' py={8}>
@@ -179,12 +201,16 @@ END:VCALENDAR`;
                     Event Organiser
                   </Badge>
                   <Heading size='lg' fontStyle='italic' color='brown.700'>
-                    {eventWrapper.organiser.firstName}{' '}
-                    {eventWrapper.organiser.lastName}
+                    {eventWrapper.organiser?.firstName || 'Unknown'}{' '}
+                    {eventWrapper.organiser?.lastName || ''}
                   </Heading>
                   <Text color='gray.600' fontSize='sm'>
                     Event Date:{' '}
-                    {new Date(eventWrapper.timestamp_day).toLocaleDateString()}
+                    {eventWrapper.timestamp_day
+                      ? new Date(
+                          eventWrapper.timestamp_day
+                        ).toLocaleDateString()
+                      : 'Unknown date'}
                   </Text>
                 </VStack>
               </CardHeader>
@@ -225,7 +251,7 @@ END:VCALENDAR`;
                             )}
 
                             <Heading size='md' color='brown.700'>
-                              {capitaliseFirstLetter(singleEvent.name)}
+                              {singleEvent.name}
                             </Heading>
 
                             <Badge colorScheme='blue' alignSelf='start'>
@@ -241,9 +267,13 @@ END:VCALENDAR`;
                                 Location:
                               </Text>
                               <Text color='gray.600' fontSize='sm'>
-                                {singleEvent.location.address},{' '}
-                                {singleEvent.location.city}(
-                                {singleEvent.location.zip_code})
+                                {singleEvent.location?.address ||
+                                  'Address not provided'}
+                                ,{' '}
+                                {singleEvent.location?.city ||
+                                  'City not provided'}
+                                {singleEvent.location?.zip_code &&
+                                  ` (${singleEvent.location.zip_code})`}
                               </Text>
                             </Box>
 
@@ -262,7 +292,8 @@ END:VCALENDAR`;
                                 w='full'
                                 maxW='512px'
                               >
-                                {singleEvent.description}
+                                {singleEvent.description ||
+                                  'No description provided'}
                               </Text>
                             </Box>
 
@@ -366,31 +397,33 @@ END:VCALENDAR`;
           ))}
         </VStack>
 
-        <Flex justify='center' align='center' gap={4} pt={8}>
-          <Button
-            variant='outline'
-            colorScheme='brown'
-            onClick={() => setCurrentPage((prev) => Math.max(prev - 1, 1))}
-            isDisabled={currentPage === 1}
-          >
-            Previous
-          </Button>
+        {totalPages > 1 && (
+          <Flex justify='center' align='center' gap={4} pt={8}>
+            <Button
+              variant='outline'
+              colorScheme='brown'
+              onClick={() => setCurrentPage((prev) => Math.max(prev - 1, 1))}
+              isDisabled={currentPage === 1}
+            >
+              Previous
+            </Button>
 
-          <Badge colorScheme='brown' px={4} py={2} fontSize='md'>
-            Page {currentPage} of {totalPages}
-          </Badge>
+            <Badge colorScheme='brown' px={4} py={2} fontSize='md'>
+              Page {currentPage} of {totalPages}
+            </Badge>
 
-          <Button
-            variant='outline'
-            colorScheme='brown'
-            onClick={() =>
-              setCurrentPage((prev) => Math.min(prev + 1, totalPages))
-            }
-            isDisabled={currentPage === totalPages}
-          >
-            Next
-          </Button>
-        </Flex>
+            <Button
+              variant='outline'
+              colorScheme='brown'
+              onClick={() =>
+                setCurrentPage((prev) => Math.min(prev + 1, totalPages))
+              }
+              isDisabled={currentPage === totalPages}
+            >
+              Next
+            </Button>
+          </Flex>
+        )}
       </VStack>
     </Container>
   );
