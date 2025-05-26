@@ -37,6 +37,7 @@ export const addEvent = async (req, res) => {
         required: ['Name', 'Date'],
       });
     }
+    res.status(201).json({ message: 'Event Added' });
   } catch (err) {
     res.status(500).json({ error: err.message });
   }
