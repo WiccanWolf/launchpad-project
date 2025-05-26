@@ -105,9 +105,9 @@ END:VCALENDAR`;
   };
 
   useEffect(() => {
-    const fetchOrganisers = async () => {
+    const fetchEvents = async () => {
       try {
-        const response = await axios.get(`${baseUrl}organisers`);
+        const response = await axios.get(`${baseUrl}events`);
         setEvents(response.data);
       } catch (error) {
         console.error(`Error retrieving events:`, error);
@@ -116,7 +116,7 @@ END:VCALENDAR`;
         setLoading(false);
       }
     };
-    fetchOrganisers();
+    fetchEvents();
   }, [baseUrl]);
 
   useEffect(() => {
