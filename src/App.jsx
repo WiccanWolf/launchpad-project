@@ -9,6 +9,7 @@ import { extendTheme, Center } from '@chakra-ui/react';
 import StaffSignIn from './pages/StaffSignIn';
 import LoginSelection from './components/LoginSelection';
 import StaffSignUp from './pages/StaffSignUp';
+import { ProtectedStaffRoute } from './components/ProtectedStaffRoute';
 
 const theme = extendTheme({
   colors: {
@@ -68,6 +69,14 @@ const App = () => {
                 <Route
                   path='/staff-signup'
                   element={<StaffSignUp baseUrl={baseUrl} />}
+                />
+                <Route
+                  path='/staff/dashboard'
+                  element={
+                    <ProtectedStaffRoute>
+                      <StaffDashboard baseUrl={baseUrl} />
+                    </ProtectedStaffRoute>
+                  }
                 />
                 {isAuthenticated && (
                   <Route

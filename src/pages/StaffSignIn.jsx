@@ -65,13 +65,22 @@ const StaffSignIn = ({ baseUrl }) => {
       const data = await response.json();
 
       if (response.ok) {
-        toast({
-          title: 'Login successful',
-          description: 'Welcome back! Redirecting to dashboard...',
-          status: 'success',
-          duration: 3000,
-          isClosable: true,
+        const sessionCheck = await fetch(`${baseUrl}check-staff-session`, {
+          credentials: 'include',
         });
+        const sessionData = await sessionCheck.json();
+        if (sessionData.isAuthenticated) {
+          toast({
+            title: 'Login successful',
+            description: 'Welcome back! Redirecting to dashboard...',
+            status: 'success',
+            duration: 3000,
+            isClosable: true,
+          });
+          setTimeout(() => navigate('/staff/dashboard'), 2000);
+        } else {
+          throw new Error('Session Creation Failed');
+        }
 
         if (data.token) {
           localStorage.setItem('token', data.token);
