@@ -435,7 +435,7 @@ END:VCALENDAR`;
                                       leftIcon={<DownloadIcon />}
                                       onClick={() => downloadICS(singleEvent)}
                                     >
-                                      Download .ics
+                                      Download iCalendar File
                                     </Button>
                                   </VStack>
                                 </VStack>
