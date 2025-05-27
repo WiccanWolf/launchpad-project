@@ -1,4 +1,3 @@
-import axios from 'axios';
 import { useEffect, useState } from 'react';
 import {
   Box,
@@ -23,17 +22,20 @@ import {
   FormControl,
   FormLabel,
   Collapse,
+  useToast,
 } from '@chakra-ui/react';
 import { ExternalLinkIcon, CalendarIcon, DownloadIcon } from '@chakra-ui/icons';
 
 const EventsPage = ({ baseUrl }) => {
-  const [showSignupFormId, setShowSignupFormId] = useState({});
+  const [showSignupFormId, setShowSignupFormId] = useState(null);
   const [emailInput, setEmailInput] = useState('');
   const [events, setEvents] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(false);
   const [currentPage, setCurrentPage] = useState(1);
+  const [signupLoading, setSignupLoading] = useState(false);
   const eventsPerPage = 20;
+  const toast = useToast();
 
   const capitaliseFirstLetter = (word) => {
     return word.charAt(0).toUpperCase() + word.slice(1);
@@ -97,19 +99,69 @@ END:VCALENDAR`;
     document.body.removeChild(link);
   };
 
-  const handleSignup = (eventId, eventName) => {
-    console.log('Sign up email:', emailInput, 'for event:', eventId);
-    alert(`Signed up ${emailInput} for ${eventName}`);
-    setEmailInput('');
-    setShowSignupFormId(null);
+  const handleSignup = async (eventId, eventName) => {
+    if (!emailInput.trim()) {
+      toast({
+        title: 'Email Required',
+        description: 'Please enter your email address.',
+        status: 'warning',
+        duration: 3000,
+        isClosable: true,
+      });
+      return;
+    }
+
+    setSignupLoading(true);
+
+    try {
+      const response = await fetch(`${baseUrl}events/${eventId}/signup`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ email: emailInput.trim() }),
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(data.message || 'Signup failed');
+      }
+
+      toast({
+        title: 'Registration Successful!',
+        description: `You've been registered for "${eventName}" with email: ${emailInput}`,
+        status: 'success',
+        duration: 5000,
+        isClosable: true,
+      });
+
+      setEmailInput('');
+      setShowSignupFormId(null);
+    } catch (error) {
+      console.error('Signup error:', error);
+      toast({
+        title: 'Registration Failed',
+        description: error.message || 'An error occurred during registration.',
+        status: 'error',
+        duration: 5000,
+        isClosable: true,
+      });
+    } finally {
+      setSignupLoading(false);
+    }
   };
 
   useEffect(() => {
     const fetchOrganisers = async () => {
       try {
-        const response = await axios.get(`${baseUrl}organisers`);
-        console.log('API Response:', response.data); // Debug log
-        setEvents(response.data || []);
+        const response = await fetch(`${baseUrl}organisers`);
+        if (!response.ok) {
+          throw new Error('Failed to fetch organisers');
+        }
+        const data = await response.json();
+        console.log('API Response:', data);
+        setEvents(data || []);
       } catch (error) {
         console.error(`Error retrieving events:`, error);
         setError(true);
@@ -350,6 +402,9 @@ END:VCALENDAR`;
                                         singleEvent.name
                                       )
                                     }
+                                    isLoading={signupLoading}
+                                    loadingText='Registering...'
+                                    isDisabled={!emailInput.trim()}
                                   >
                                     Confirm Registration
                                   </Button>
