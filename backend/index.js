@@ -5,7 +5,9 @@ import dotenv from 'dotenv';
 dotenv.config();
 import {
   addEvent,
+  addStaff,
   addToGoogle,
+  createOrganiser,
   getEvents,
   getOrganisers,
   signUp,
@@ -29,8 +31,11 @@ mongoose.connect(process.env.ATLAS_URI, { dbName: 'events_sample' });
 app.get('/events', getEvents);
 app.get('/organisers', getOrganisers);
 app.post('/events', addEvent);
-app.post('/events/:eventiD/signup', signUp);
+app.post('/events/:eventId/signup', signUp);
 app.post('/events/calendar', addToGoogle);
+
 app.post('/staff-login', staffSignIn);
+app.post('/staff', addStaff);
+app.post('/organisers', createOrganiser);
 
 app.listen(PORT, () => console.log(`Server is running on port: ${PORT}`));
