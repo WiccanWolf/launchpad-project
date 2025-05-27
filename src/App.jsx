@@ -70,14 +70,7 @@ const App = () => {
                   path='/staff-signup'
                   element={<StaffSignUp baseUrl={baseUrl} />}
                 />
-                <Route
-                  path='/staff/dashboard'
-                  element={
-                    <ProtectedStaffRoute>
-                      <StaffDashboard baseUrl={baseUrl} />
-                    </ProtectedStaffRoute>
-                  }
-                />
+
                 {isAuthenticated && (
                   <Route
                     path='/events'

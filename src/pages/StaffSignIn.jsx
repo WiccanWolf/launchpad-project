@@ -77,6 +77,13 @@ const StaffSignIn = ({ baseUrl }) => {
             duration: 3000,
             isClosable: true,
           });
+          localStorage.setItem(
+            'staffAuth',
+            JSON.stringify({
+              email: formData.email,
+              timestamp: Date.now(),
+            })
+          );
           setTimeout(() => navigate('/staff/dashboard'), 2000);
         } else {
           throw new Error('Session Creation Failed');
