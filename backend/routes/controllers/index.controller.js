@@ -127,12 +127,27 @@ export const staffSignIn = async (req, res) => {
     if (!isMatching) {
       return res.status(401).json({ message: 'Invalid Password' });
     }
+
+    req.session.regenerate((err) => {
+      if (err) {
+        console.error(`Session Regeneration Error: ${err}`);
+        return res.status(500).json({ message: 'Session Creation Failed' });
+      }
+    });
+
     req.session.staff = {
       id: staff._id,
       email: staff.email,
       role: staff.role,
       authenticated: true,
     };
+
+    req.session.save((err) => {
+      if (err) {
+        console.error(`Session Save Error: ${err}`);
+        return res.status(500).json({ message: 'Session Save Failed' });
+      }
+    });
 
     res.status(200).json({
       message: 'Staff Login Successful',

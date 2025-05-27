@@ -17,9 +17,13 @@ import {
   staffSignIn,
   verifyStaffSession,
 } from './routes/controllers/index.controller.js';
+import MongoStore from 'connect-mongo';
 
 const PORT = 5100;
 const app = express();
+
+mongoose.connect(process.env.ATLAS_URI, { dbName: 'events_sample' });
+
 app.use(
   cors({
     origin: ['http://localhost:5173', 'http://127.0.0.1:5173'],
@@ -29,11 +33,19 @@ app.use(
   })
 );
 app.use(express.json());
+
+const sessionStore = MongoStore.create({
+  mongoUrl: process.env.ATLAS_URI,
+  dbName: 'events_sample',
+  collectionName: 'sessions',
+});
+
 app.use(
   session({
     secret: process.env.SESSION_SECRET || 'HelloW0rld',
     resave: false,
     saveUninitialized: false,
+    store: sessionStore,
     cookie: {
       secure: process.env.NODE_ENV === 'production',
       httpOnly: true,
@@ -42,8 +54,6 @@ app.use(
     },
   })
 );
-
-mongoose.connect(process.env.ATLAS_URI, { dbName: 'events_sample' });
 
 app.get('/events', getEvents);
 app.get('/organisers', getOrganisers);
