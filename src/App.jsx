@@ -5,8 +5,9 @@ import Navbar from './components/Navbar';
 import LoginButton from './components/LoginButton';
 import Home from './pages/Home';
 import EventsPage from './pages/EventsPage';
-import EventDetails from './pages/EventDetails';
 import { extendTheme, Center } from '@chakra-ui/react';
+import StaffSignIn from './pages/StaffSignIn';
+import LoginSelection from './components/LoginSelection';
 
 const theme = extendTheme({
   colors: {
@@ -44,18 +45,32 @@ const App = () => {
           <Box minH='100vh' bg='gray.50'>
             <Navbar />
             <Box as='main' pt='4'>
-              {isAuthenticated ? (
-                <Routes>
-                  <Route path='/' element={<Home baseUrl={baseUrl} />} />
+              <Routes>
+                <Route
+                  path='/'
+                  element={
+                    isAuthenticated ? (
+                      <Home baseUrl={baseUrl} />
+                    ) : (
+                      <LoginSelection />
+                    )
+                  }
+                />
+                <Route
+                  path='/user-login'
+                  element={<LoginButton baseUrl={baseUrl} />}
+                />
+                <Route
+                  path='/staff-login'
+                  element={<StaffSignIn baseUrl={baseUrl} />}
+                />
+                {isAuthenticated && (
                   <Route
                     path='/events'
                     element={<EventsPage baseUrl={baseUrl} />}
                   />
-                  <Route path='/events/:eventId' element={<EventDetails />} />
-                </Routes>
-              ) : (
-                <LoginButton baseUrl={baseUrl} />
-              )}
+                )}
+              </Routes>
             </Box>
           </Box>
         </Router>
