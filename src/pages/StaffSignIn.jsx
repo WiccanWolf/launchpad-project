@@ -25,8 +25,10 @@ import {
   Image,
 } from '@chakra-ui/react';
 import { Eye, EyeOff, Lock, Mail } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
 
 const StaffSignIn = ({ baseUrl }) => {
+  const navigate = useNavigate();
   const toast = useToast();
   const [formData, setFormData] = useState({
     email: '',
@@ -74,11 +76,10 @@ const StaffSignIn = ({ baseUrl }) => {
         if (data.token) {
           localStorage.setItem('token', data.token);
         }
-
         setFormData({ email: '', password: '' });
         setMessage('');
-
         console.log('Logged in Staff:', data.staff);
+        navigate('/');
       } else {
         setMessage(
           data.message || 'Login failed. Please check your credentials.'
@@ -235,7 +236,11 @@ const StaffSignIn = ({ baseUrl }) => {
                   fontSize='lg'
                   isLoading={isLoading}
                   loadingText='Signing in...'
-                  _hover={{ transform: 'translateY(-1px)', shadow: 'lg' }}
+                  _hover={{
+                    bg: 'brand.600',
+                    transform: 'translateY(-1px)',
+                    shadow: 'lg',
+                  }}
                   transition='all 0.2s'
                 >
                   Sign In

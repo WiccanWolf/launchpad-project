@@ -70,7 +70,11 @@ const LoginSelection = () => {
                   py={6}
                   fontSize='lg'
                   onClick={handleUserLogin}
-                  _hover={{ transform: 'translateY(-1px)', shadow: 'lg' }}
+                  _hover={{
+                    bg: 'brand.700',
+                    transform: 'translateY(-1px)',
+                    shadow: 'lg',
+                  }}
                   transition='all 0.2s'
                 >
                   Sign In as Community Member
@@ -135,9 +139,11 @@ const LoginSelection = () => {
                   w='full'
                   onClick={handleStaffSignUp}
                   _hover={{
-                    color: 'brand.700',
-                    textDecoration: 'underline',
+                    bg: 'brand.100',
+                    transform: 'translateY(-1px)',
+                    shadow: 'lg',
                   }}
+                  transition='all 0.2s'
                 >
                   Create Staff Account
                 </Button>
