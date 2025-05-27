@@ -1,4 +1,5 @@
-import mongoose from 'mongoose';
+import session from 'express-session';
+import MongoStore from 'connect-mongo';
 import bcrypt from 'bcrypt';
 import {
   EventModel,
@@ -126,6 +127,12 @@ export const staffSignIn = async (req, res) => {
     if (!isMatching) {
       return res.status(401).json({ message: 'Invalid Password' });
     }
+    req.session.staff = {
+      id: staff._id,
+      email: staff.email,
+      role: staff.role,
+      authenticated: true,
+    };
 
     res.status(200).json({
       message: 'Staff Login Successful',
@@ -213,4 +220,29 @@ export const addStaff = async (req, res) => {
     console.error(`Error Created Staff: ${err}`);
     res.status(500).json({ error: err.message });
   }
+};
+
+export const verifyStaffSession = (req, res, next) => {
+  if (req.session.staff?.authenticated) {
+    return next();
+  }
+  res.status(401).json({ message: 'Unathorized - Please Log In' });
+};
+
+export const staffLogout = (req, res) => {
+  req.session.destroy((err) => {
+    if (err) {
+      console.error(`Logout Error: ${err}`);
+      return res.status(500).json({ message: 'Logout Failed' });
+    }
+    res.clearCookie('connect.sid');
+    res.status(200).json({ message: 'Logout Successful' });
+  });
+};
+
+export const checkStaffSession = (req, res) => {
+  res.json({
+    isAuthenticated: !!req.session.staff?.authenticated,
+    staff: req.session.staff,
+  });
 };
