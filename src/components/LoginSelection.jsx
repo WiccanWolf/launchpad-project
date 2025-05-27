@@ -9,10 +9,9 @@ import {
   Card,
   CardBody,
   Divider,
-  Icon,
 } from '@chakra-ui/react';
 import { useNavigate } from 'react-router-dom';
-import { Users, Shield } from 'lucide-react';
+import { Users, Shield, UserPlus } from 'lucide-react';
 
 const LoginSelection = () => {
   const navigate = useNavigate();
@@ -21,6 +20,9 @@ const LoginSelection = () => {
   };
   const handleStaffLogin = () => {
     navigate('/staff-login');
+  };
+  const handleStaffSignUp = () => {
+    navigate('/staff-signup');
   };
 
   return (
@@ -123,6 +125,21 @@ const LoginSelection = () => {
                   transition='all 0.2s'
                 >
                   Staff Sign In
+                </Button>
+
+                <Button
+                  leftIcon={<UserPlus size={20} />}
+                  variant='ghost'
+                  colorScheme='brand'
+                  size='md'
+                  w='full'
+                  onClick={handleStaffSignUp}
+                  _hover={{
+                    color: 'brand.700',
+                    textDecoration: 'underline',
+                  }}
+                >
+                  Create Staff Account
                 </Button>
               </VStack>
             </VStack>

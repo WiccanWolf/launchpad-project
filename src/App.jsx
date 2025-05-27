@@ -8,6 +8,7 @@ import EventsPage from './pages/EventsPage';
 import { extendTheme, Center } from '@chakra-ui/react';
 import StaffSignIn from './pages/StaffSignIn';
 import LoginSelection from './components/LoginSelection';
+import StaffSignUp from './pages/StaffSignUp';
 
 const theme = extendTheme({
   colors: {
@@ -63,6 +64,10 @@ const App = () => {
                 <Route
                   path='/staff-login'
                   element={<StaffSignIn baseUrl={baseUrl} />}
+                />
+                <Route
+                  path='/staff-signup'
+                  element={<StaffSignUp baseUrl={baseUrl} />}
                 />
                 {isAuthenticated && (
                   <Route
