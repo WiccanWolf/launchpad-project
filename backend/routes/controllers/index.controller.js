@@ -1,6 +1,5 @@
-import session from 'express-session';
-import MongoStore from 'connect-mongo';
 import bcrypt from 'bcrypt';
+import jwt from 'jsonwebtoken';
 import {
   EventModel,
   OrganiserModel,
@@ -8,6 +7,8 @@ import {
   StaffModel,
 } from '../models/index.model.js';
 import { google } from 'googleapis';
+
+const JWT_SECRET = process.env.JWT_SECRET;
 
 export const getEvents = (req, res) => {
   EventModel.find()
@@ -78,7 +79,7 @@ export const signUp = async (req, res) => {
     }
     const signup = new EventSignup({ email, eventId });
     await signup.save();
-    res.status(200).json({ message: 'Signup Succesfful' });
+    res.status(200).json({ message: 'Signup Successful' });
   } catch (err) {
     console.error(err);
     res.status(500).json({ message: 'Server Error during Signup' });
@@ -132,63 +133,42 @@ export const staffSignIn = async (req, res) => {
       return res.status(401).json({ message: 'Invalid Password' });
     }
 
-    console.log(`Password validated for: ${email}, creating session...`);
+    console.log(`Password validated for: ${email}, creating token...`);
 
-    // Wrap session operations in promises to properly handle async operations
-    try {
-      // Regenerate session
-      await new Promise((resolve, reject) => {
-        req.session.regenerate((err) => {
-          if (err) {
-            console.error(`Session Regeneration Error: ${err}`);
-            reject(err);
-          } else {
-            console.log('Session regenerated successfully');
-            resolve();
-          }
-        });
-      });
+    const tokenPayload = {
+      id: staff._id,
+      email: staff.email,
+      role: staff.role,
+    };
 
-      // Set session data
+    const token = jwt.sign(tokenPayload, JWT_SECRET, {
+      expiresIn: '24h',
+      issuer: 'launchpad-events',
+      audience: 'staff',
+    });
+
+    console.log(`Token created for: ${email}`);
+
+    if (req.session) {
       req.session.staff = {
         id: staff._id,
         email: staff.email,
         role: staff.role,
         authenticated: true,
       };
-
-      console.log('Session data set:', req.session.staff);
-
-      // Save session
-      await new Promise((resolve, reject) => {
-        req.session.save((err) => {
-          if (err) {
-            console.error(`Session Save Error: ${err}`);
-            reject(err);
-          } else {
-            console.log('Session saved successfully');
-            resolve();
-          }
-        });
-      });
-
-      console.log(`Login successful for: ${email}`);
-
-      // Now send the response after session is properly saved
-      res.status(200).json({
-        message: 'Staff Login Successful',
-        staff: {
-          _id: staff._id,
-          email: staff.email,
-          firstName: staff.firstName,
-          lastName: staff.lastName,
-          role: staff.role,
-        },
-      });
-    } catch (sessionError) {
-      console.error(`Session handling error: ${sessionError}`);
-      return res.status(500).json({ message: 'Session Creation Failed' });
     }
+
+    res.status(200).json({
+      message: 'Staff Login Successful',
+      token: token,
+      staff: {
+        _id: staff._id,
+        email: staff.email,
+        firstName: staff.firstName,
+        lastName: staff.lastName,
+        role: staff.role,
+      },
+    });
   } catch (err) {
     console.error(`Login Error: ${err}`);
     res.status(500).json({ message: 'Server Error During Login' });
@@ -198,7 +178,6 @@ export const staffSignIn = async (req, res) => {
 export const createOrganiser = async (req, res) => {
   try {
     const { staffId, eventIds } = req.body;
-    // Fixed typo: was "awaitStaffModel" instead of "await StaffModel"
     const staff = await StaffModel.findById(staffId);
     if (!staff) {
       return res.status(404).json({ message: 'Staff Member Not Found' });
@@ -268,35 +247,86 @@ export const addStaff = async (req, res) => {
   }
 };
 
+export const verifyJWT = (req, res, next) => {
+  const authHeader = req.headers.authorization;
+  const token = authHeader && authHeader.split(' ')[1];
+
+  if (!token) {
+    return res.status(401).json({ message: 'Access token required' });
+  }
+
+  try {
+    const decoded = jwt.verify(token, JWT_SECRET);
+    req.staff = decoded;
+    next();
+  } catch (err) {
+    console.error('JWT verification error:', err);
+    return res.status(403).json({ message: 'Invalid or expired token' });
+  }
+};
+
 export const verifyStaffSession = (req, res, next) => {
-  console.log('Verifying staff session:', req.session.staff);
-  if (req.session.staff?.authenticated) {
+  const authHeader = req.headers.authorization;
+  const token = authHeader && authHeader.split(' ')[1];
+
+  if (token) {
+    try {
+      const decoded = jwt.verify(token, JWT_SECRET);
+      req.staff = decoded;
+      return next();
+    } catch (err) {
+      console.error('JWT verification failed:', err);
+    }
+  }
+
+  if (req.session?.staff?.authenticated) {
     return next();
   }
+
   res.status(401).json({ message: 'Unauthorized - Please Log In' });
 };
 
 export const staffLogout = (req, res) => {
-  req.session.destroy((err) => {
-    if (err) {
-      console.error(`Logout Error: ${err}`);
-      return res.status(500).json({ message: 'Logout Failed' });
-    }
+  if (req.session) {
+    req.session.destroy((err) => {
+      if (err) {
+        console.error(`Logout Error: ${err}`);
+      }
+    });
     res.clearCookie('connect.sid');
-    res.status(200).json({ message: 'Logout Successful' });
+  }
+
+  res.status(200).json({
+    message: 'Logout Successful',
+    note: 'Please remove token from client storage',
   });
 };
-
 export const checkStaffSession = (req, res) => {
+  const authHeader = req.headers.authorization;
+  const token = authHeader && authHeader.split(' ')[1];
+
+  if (token) {
+    try {
+      const decoded = jwt.verify(token, JWT_SECRET);
+      return res.json({
+        isAuthenticated: true,
+        staff: decoded,
+        authMethod: 'jwt',
+      });
+    } catch (err) {
+      console.error('JWT check failed:', err);
+    }
+  }
   console.log('Checking staff session:', {
     sessionExists: !!req.session,
     sessionId: req.sessionID,
-    staffData: req.session.staff,
-    isAuthenticated: !!req.session.staff?.authenticated,
+    staffData: req.session?.staff,
+    isAuthenticated: !!req.session?.staff?.authenticated,
   });
 
   res.json({
-    isAuthenticated: !!req.session.staff?.authenticated,
-    staff: req.session.staff,
+    isAuthenticated: !!req.session?.staff?.authenticated,
+    staff: req.session?.staff,
+    authMethod: 'session',
   });
 };

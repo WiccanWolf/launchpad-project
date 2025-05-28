@@ -42,12 +42,12 @@ const sessionStore = MongoStore.create({
 
 app.use(
   session({
-    secret: process.env.SESSION_SECRET || 'HelloW0rld',
+    secret: process.env.SESSION_SECRET,
     resave: false,
     saveUninitialized: false,
     store: sessionStore,
     cookie: {
-      secure: process.env.NODE_ENV === 'production',
+      secure: process.env.NODE_ENV,
       httpOnly: true,
       sameSite: 'lax',
       maxAge: 24 * 60 * 60 * 1000,
