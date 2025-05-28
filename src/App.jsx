@@ -48,16 +48,7 @@ const App = () => {
             <Navbar />
             <Box as='main' pt='4'>
               <Routes>
-                <Route
-                  path='/'
-                  element={
-                    isAuthenticated ? (
-                      <Home baseUrl={baseUrl} />
-                    ) : (
-                      <LoginSelection />
-                    )
-                  }
-                />
+                <Route path='/' element={<Home baseUrl={baseUrl} />} />
                 <Route
                   path='/user-login'
                   element={<LoginButton baseUrl={baseUrl} />}
