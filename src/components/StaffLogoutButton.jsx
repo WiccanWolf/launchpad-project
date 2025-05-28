@@ -8,37 +8,61 @@ const StaffLogoutButton = ({ baseUrl = import.meta.env.VITE_HOSTED_URI }) => {
 
   const handleLogout = async () => {
     try {
+      localStorage.removeItem('staffAuth');
+      localStorage.removeItem('token');
+      sessionStorage.removeItem('staffAuth');
       const response = await fetch(`${baseUrl}staff-logout`, {
+        method: 'POST',
+        credentials: 'include',
+        headers: {
+          'Content-Type': 'application/json',
+          ...(localStorage.getItem('token') && {
+            Authorization: `Bearer ${localStorage.getItem('token')}`,
+          }),
+        },
+      });
+
+      await fetch(`${baseUrl}clear-session`, {
         method: 'POST',
         credentials: 'include',
       });
 
-      if (response.ok) {
-        localStorage.remoteItem('staffAuth');
-        localStorage.remoteItem('token');
-        toast({
-          title: 'Logged out successfully',
-          status: 'success',
-          duration: 2000,
-          isClosable: true,
-        });
-        navigate('/', { replace: true });
-      }
+      toast({
+        title: 'Logged out successfully',
+        status: 'success',
+        duration: 2000,
+        isClosable: true,
+        onCloseComplete: () => {
+          window.location.href = '/';
+        },
+      });
+      navigate('/', { replace: true });
     } catch (error) {
       console.error('Logout error:', error);
+      localStorage.removeItem('staffAuth');
+      localStorage.removeItem('token');
       toast({
-        title: 'Logout failed',
-        description: 'Please try again',
-        status: 'error',
+        title: 'Client Session Cleared',
+        description: 'Server Logout Failed, but local session was cleared.',
+        status: 'warning',
         duration: 3000,
         isClosable: true,
+        onCloseComplete: () => {
+          window.location.href = '/';
+        },
       });
     }
   };
 
   return (
-    <Button colorScheme='red' onClick={handleLogout}>
-      Logout
+    <Button
+      colorScheme='red'
+      onClick={handleLogout}
+      variant='outline'
+      size='sm'
+      _hover={{ bg: 'red.50' }}
+    >
+      Staff Logout
     </Button>
   );
 };

@@ -1,6 +1,11 @@
 import { ChakraProvider, Box } from '@chakra-ui/react';
 import { useAuth0 } from '@auth0/auth0-react';
-import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
+import {
+  BrowserRouter as Router,
+  Route,
+  Routes,
+  Navigate,
+} from 'react-router-dom';
 import Navbar from './components/Navbar';
 import LoginButton from './components/LoginButton';
 import Home from './pages/Home';
@@ -10,6 +15,7 @@ import StaffSignIn from './pages/StaffSignIn';
 import LoginSelection from './components/LoginSelection';
 import StaffSignUp from './pages/StaffSignUp';
 import { ProtectedStaffRoute } from './components/ProtectedStaffRoute';
+import { useEffect } from 'react';
 
 const theme = extendTheme({
   colors: {
@@ -38,17 +44,46 @@ const theme = extendTheme({
 const baseUrl = import.meta.env.VITE_HOSTED_URI;
 
 const App = () => {
-  const { isAuthenticated } = useAuth0();
+  const { isAuthenticated, isLoading } = useAuth0();
+  const isStaff = localStorage.getItem('staffAuth');
+
+  useEffect(() => {
+    if (!isLoading && (isAuthenticated || isStaff)) {
+    }
+  }, [isAuthenticated, isStaff, isLoading]);
+
+  if (isLoading) {
+    return <div>Loading...</div>;
+  }
 
   return (
     <ChakraProvider theme={theme}>
-      <Center minH='100vg' bg='brand.50' px={4}>
+      <Center minH='100vh' bg='brand.50' px={4}>
         <Router>
           <Box minH='100vh' bg='gray.50'>
-            <Navbar />
+            {(isAuthenticated || isStaff) && <Navbar />}
             <Box as='main' pt='4'>
               <Routes>
-                <Route path='/' element={<Home baseUrl={baseUrl} />} />
+                <Route
+                  path='/'
+                  element={
+                    isAuthenticated || isStaff ? (
+                      <Navigate to='/home' replace />
+                    ) : (
+                      <LoginSelection />
+                    )
+                  }
+                />
+                <Route
+                  path='/home'
+                  element={
+                    isAuthenticated || isStaff ? (
+                      <Home baseUrl={baseUrl} />
+                    ) : (
+                      <Navigate to='/' replace />
+                    )
+                  }
+                />
                 <Route
                   path='/user-login'
                   element={<LoginButton baseUrl={baseUrl} />}
@@ -65,7 +100,13 @@ const App = () => {
                 {isAuthenticated && (
                   <Route
                     path='/events'
-                    element={<EventsPage baseUrl={baseUrl} />}
+                    element={
+                      isAuthenticated ? (
+                        <EventsPage baseUrl={baseUrl} />
+                      ) : (
+                        <Navigate to='/' replace />
+                      )
+                    }
                   />
                 )}
               </Routes>

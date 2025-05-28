@@ -123,7 +123,7 @@ const StaffSignIn = ({ baseUrl }) => {
           setFormData({ email: '', password: '' });
           setMessage('');
 
-          setTimeout(() => navigate('/'), 2000);
+          setTimeout(() => navigate('/home'), 2000);
         } else {
           console.error(
             'Session creation failed. Login response was OK but session check failed.'
@@ -156,7 +156,7 @@ const StaffSignIn = ({ baseUrl }) => {
 
             setFormData({ email: '', password: '' });
             setMessage('');
-            setTimeout(() => navigate('/', { replace: true }), 2000);
+            setTimeout(() => navigate('/home', { replace: true }), 2000);
           } else {
             throw new Error(
               'Session creation failed - no session or token available'

@@ -200,7 +200,6 @@ END:VCALENDAR`;
     );
   }
 
-  // Filter out organisers that don't have events or have invalid data
   const validEvents = events.filter(
     (eventWrapper) =>
       eventWrapper &&

@@ -5,19 +5,37 @@ import {
   Heading,
   Spacer,
   HStack,
+  useColorMode,
   useColorModeValue,
   Container,
   Link as ChakraLink,
+  Badge,
 } from '@chakra-ui/react';
 import { Link as RouterLink } from 'react-router-dom';
 import LogoutButton from './LogoutButton';
 import StaffLogoutButton from './StaffLogoutButton';
+import { FaUserShield } from 'react-icons/fa';
 
 const Navbar = () => {
   const { isAuthenticated } = useAuth0();
+  const { colorMode } = useColorMode();
   const isStaff = localStorage.getItem('staffAuth');
-  const bgColor = useColorModeValue('white', 'gray.800');
-  const borderColor = useColorModeValue('gray.200', 'gray.700');
+
+  const bgColor = isStaff
+    ? useColorModeValue('brand.100', 'brand.800')
+    : useColorModeValue('white', 'gray.800');
+
+  const borderColor = isStaff
+    ? useColorModeValue('brand.300', 'brand.600')
+    : useColorModeValue('gray.200', 'gray.700');
+
+  const brandColor = isStaff
+    ? useColorModeValue('brand.700', 'brand.200')
+    : useColorModeValue('brand.700', 'brand.300');
+
+  const hoverBg = isStaff
+    ? useColorModeValue('brand.200', 'brand.700')
+    : useColorModeValue('brand.50', 'gray.700');
 
   return (
     <Box
@@ -34,11 +52,23 @@ const Navbar = () => {
         <Flex h={16} alignItems='center'>
           <ChakraLink
             as={RouterLink}
-            to='/'
+            to='/home'
             _hover={{ textDecoration: 'none' }}
           >
             <Heading size='lg' color='brand.700' fontWeight='bold'>
               Community Events Platform
+              {isStaff && (
+                <Badge
+                  ml={2}
+                  colorScheme='brand'
+                  variant='solid'
+                  display='inline-flex'
+                  alignItems='center'
+                >
+                  <Box as={FaUserShield} mr={1} />
+                  Staff
+                </Badge>
+              )}
             </Heading>
           </ChakraLink>
 
@@ -49,7 +79,7 @@ const Navbar = () => {
               <>
                 <ChakraLink
                   as={RouterLink}
-                  to='/'
+                  to='/home'
                   px={3}
                   py={2}
                   rounded='md'
@@ -80,7 +110,6 @@ const Navbar = () => {
                   Events
                 </ChakraLink>
                 {isAuthenticated ? <LogoutButton /> : <StaffLogoutButton />}
-                <LogoutButton />
               </>
             )}
           </HStack>
