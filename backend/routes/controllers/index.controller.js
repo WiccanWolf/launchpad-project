@@ -332,3 +332,31 @@ export const checkStaffSession = (req, res) => {
     authMethod: 'session',
   });
 };
+
+export const clearSession = (req, res) => {
+  try {
+    req.session.destroy((err) => {
+      if (err) {
+        console.error(`Session Destruction Error: ${err}`);
+        return res
+          .status(500)
+          .json({ success: false, message: 'Failed to Clear Session' });
+      }
+
+      res.clearCookie('connect.sid', {
+        path: '/',
+        httpOnly: true,
+        secure: process.env.NODE_ENV === 'production',
+        sameSite: 'lax',
+      });
+      return res
+        .status(200)
+        .json({ success: true, message: 'Session Cleared Succesffully' });
+    });
+  } catch (err) {
+    console.error(`Clear Session Error: ${err}`);
+    return res
+      .status(500)
+      .json({ success: false, message: 'Internal Server Error' });
+  }
+};

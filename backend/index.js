@@ -9,6 +9,7 @@ import {
   addStaff,
   addToGoogle,
   checkStaffSession,
+  clearSession,
   createOrganiser,
   getEvents,
   getOrganisers,
@@ -66,6 +67,7 @@ app.post('/events', addEvent);
 app.post('/events/:eventId/signup', signUp);
 app.post('/events/calendar', addToGoogle);
 
+app.post('/clear-session', clearSession);
 app.post('/staff-login', staffSignIn);
 app.post('/staff-logout', staffLogout);
 app.post('/staff', addStaff);
