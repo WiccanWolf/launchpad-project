@@ -2,7 +2,7 @@ import { Button } from '@chakra-ui/react';
 import { useNavigate } from 'react-router-dom';
 import { useToast } from '@chakra-ui/react';
 
-const StaffLogoutButton = ({ baseUrl }) => {
+const StaffLogoutButton = ({ baseUrl = import.meta.env.VITE_HOSTED_URI }) => {
   const navigate = useNavigate();
   const toast = useToast();
 
