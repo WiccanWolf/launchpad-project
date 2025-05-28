@@ -23,7 +23,7 @@ import {
   useToast,
   Flex,
 } from '@chakra-ui/react';
-import { Eye, EyeOff, Lock, Mail } from 'lucide-react';
+import { Eye, EyeOff, Lock } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 
 const StaffSignIn = ({ baseUrl }) => {
@@ -156,7 +156,7 @@ const StaffSignIn = ({ baseUrl }) => {
 
             setFormData({ email: '', password: '' });
             setMessage('');
-            setTimeout(() => navigate('/'), 2000);
+            setTimeout(() => navigate('/', { replace: true }), 2000);
           } else {
             throw new Error(
               'Session creation failed - no session or token available'

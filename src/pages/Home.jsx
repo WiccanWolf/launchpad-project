@@ -18,8 +18,12 @@ import {
 } from '@chakra-ui/react';
 import { CalendarIcon, ExternalLinkIcon } from '@chakra-ui/icons';
 import { keyframes } from '@emotion/react';
+import { useAuth0 } from '@auth0/auth0-react';
 
 const Home = ({ baseUrl }) => {
+  const { isAuthenticated } = useAuth0();
+  const isStaff = localStorage.getItem('staffAuth');
+
   const animation = keyframes`to {background-position: 200%};`;
   const [showForm, setShowForm] = useState(false);
 
@@ -122,14 +126,16 @@ const Home = ({ baseUrl }) => {
                 <Text textAlign='center' color='gray.600'>
                   Organize your own community event and bring people together.
                 </Text>
-                <Button
-                  colorScheme='brand'
-                  variant='outline'
-                  size='lg'
-                  onClick={() => setShowForm((prev) => !prev)}
-                >
-                  {showForm ? 'Cancel' : 'Add New Event'}
-                </Button>
+                {(isAuthenticated || isStaff) && (
+                  <Button
+                    colorScheme='brand'
+                    variant='outline'
+                    size='lg'
+                    onClick={() => setShowForm((prev) => !prev)}
+                  >
+                    {showForm ? 'Cancel' : 'Add New Event'}
+                  </Button>
+                )}
               </VStack>
             </CardBody>
           </Card>
