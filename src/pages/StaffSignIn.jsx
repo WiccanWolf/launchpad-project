@@ -22,7 +22,6 @@ import {
   Divider,
   useToast,
   Flex,
-  Image,
 } from '@chakra-ui/react';
 import { Eye, EyeOff, Lock, Mail } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
@@ -74,13 +73,11 @@ const StaffSignIn = ({ baseUrl }) => {
       console.log('Login response data:', data);
 
       if (response.ok) {
-        // Store token immediately if provided
         if (data.token) {
           localStorage.setItem('token', data.token);
           console.log('Token stored:', data.token);
         }
 
-        // Add a small delay to ensure session is properly set
         console.log('Waiting for session to be established...');
         await new Promise((resolve) => setTimeout(resolve, 100));
 
@@ -91,7 +88,6 @@ const StaffSignIn = ({ baseUrl }) => {
           credentials: 'include',
           headers: {
             'Content-Type': 'application/json',
-            // Include token in header if available
             ...(data.token && { Authorization: `Bearer ${data.token}` }),
           },
         });
@@ -105,8 +101,7 @@ const StaffSignIn = ({ baseUrl }) => {
         const sessionData = await sessionCheck.json();
         console.log('Session data:', sessionData);
 
-        if (sessionData.isAuthenticated) {
-          // Success - store auth data and redirect
+        if (sessionData.isAuthenticated || data.token) {
           localStorage.setItem(
             'staffAuth',
             JSON.stringify({
@@ -125,14 +120,11 @@ const StaffSignIn = ({ baseUrl }) => {
 
           console.log('Logged in Staff:', data.staff);
 
-          // Clear form
           setFormData({ email: '', password: '' });
           setMessage('');
 
-          // Redirect after short delay
           setTimeout(() => navigate('/'), 2000);
         } else {
-          // Session check failed - but login seemed successful
           console.error(
             'Session creation failed. Login response was OK but session check failed.'
           );
@@ -141,7 +133,6 @@ const StaffSignIn = ({ baseUrl }) => {
           console.error('2. Cookie/session configuration problem');
           console.error('3. Timing issue between login and session check');
 
-          // Try to proceed anyway if we have a token
           if (data.token) {
             console.log(
               'Proceeding with token-based auth despite session check failure'
@@ -173,7 +164,6 @@ const StaffSignIn = ({ baseUrl }) => {
           }
         }
       } else {
-        // Login request failed
         console.error('Login request failed:', response.status, data);
         setMessage(
           data.message || 'Login failed. Please check your credentials.'
@@ -182,7 +172,6 @@ const StaffSignIn = ({ baseUrl }) => {
     } catch (error) {
       console.error('Login error:', error);
 
-      // More specific error handling
       if (error.message.includes('Session creation failed')) {
         setMessage(
           'Session error. Please try logging in again or contact support.'
