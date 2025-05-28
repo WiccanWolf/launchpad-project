@@ -117,48 +117,78 @@ export const addToGoogle = async (req, res) => {
 export const staffSignIn = async (req, res) => {
   const { email, password } = req.body;
   try {
+    console.log(`Staff login attempt for: ${email}`);
+
     const staff = await StaffModel.findOne({ email: email });
 
     if (!staff || !staff.passwordHash) {
+      console.log(`Staff not found or no password hash for: ${email}`);
       return res.status(401).json({ message: 'Invalid Credentials' });
     }
 
     const isMatching = await bcrypt.compare(password, staff.passwordHash);
     if (!isMatching) {
+      console.log(`Password mismatch for: ${email}`);
       return res.status(401).json({ message: 'Invalid Password' });
     }
 
-    req.session.regenerate((err) => {
-      if (err) {
-        console.error(`Session Regeneration Error: ${err}`);
-        return res.status(500).json({ message: 'Session Creation Failed' });
-      }
-    });
+    console.log(`Password validated for: ${email}, creating session...`);
 
-    req.session.staff = {
-      id: staff._id,
-      email: staff.email,
-      role: staff.role,
-      authenticated: true,
-    };
+    // Wrap session operations in promises to properly handle async operations
+    try {
+      // Regenerate session
+      await new Promise((resolve, reject) => {
+        req.session.regenerate((err) => {
+          if (err) {
+            console.error(`Session Regeneration Error: ${err}`);
+            reject(err);
+          } else {
+            console.log('Session regenerated successfully');
+            resolve();
+          }
+        });
+      });
 
-    req.session.save((err) => {
-      if (err) {
-        console.error(`Session Save Error: ${err}`);
-        return res.status(500).json({ message: 'Session Save Failed' });
-      }
-    });
-
-    res.status(200).json({
-      message: 'Staff Login Successful',
-      staff: {
-        _id: staff._id,
+      // Set session data
+      req.session.staff = {
+        id: staff._id,
         email: staff.email,
-        firstName: staff.firstName,
-        lastName: staff.lastName,
         role: staff.role,
-      },
-    });
+        authenticated: true,
+      };
+
+      console.log('Session data set:', req.session.staff);
+
+      // Save session
+      await new Promise((resolve, reject) => {
+        req.session.save((err) => {
+          if (err) {
+            console.error(`Session Save Error: ${err}`);
+            reject(err);
+          } else {
+            console.log('Session saved successfully');
+            resolve();
+          }
+        });
+      });
+
+      console.log(`Login successful for: ${email}`);
+
+      // Now send the response after session is properly saved
+      res.status(200).json({
+        message: 'Staff Login Successful',
+        staff: {
+          _id: staff._id,
+          email: staff.email,
+          firstName: staff.firstName,
+          lastName: staff.lastName,
+          role: staff.role,
+        },
+      });
+    } catch (sessionError) {
+      console.error(`Session handling error: ${sessionError}`);
+      return res.status(500).json({ message: 'Session Creation Failed' });
+    }
   } catch (err) {
     console.error(`Login Error: ${err}`);
     res.status(500).json({ message: 'Server Error During Login' });
@@ -168,7 +198,8 @@ export const staffSignIn = async (req, res) => {
 export const createOrganiser = async (req, res) => {
   try {
     const { staffId, eventIds } = req.body;
-    const staff = awaitStaffModel.findById(staffId);
+    // Fixed typo: was "awaitStaffModel" instead of "await StaffModel"
+    const staff = await StaffModel.findById(staffId);
     if (!staff) {
       return res.status(404).json({ message: 'Staff Member Not Found' });
     }
@@ -238,10 +269,11 @@ export const addStaff = async (req, res) => {
 };
 
 export const verifyStaffSession = (req, res, next) => {
+  console.log('Verifying staff session:', req.session.staff);
   if (req.session.staff?.authenticated) {
     return next();
   }
-  res.status(401).json({ message: 'Unathorized - Please Log In' });
+  res.status(401).json({ message: 'Unauthorized - Please Log In' });
 };
 
 export const staffLogout = (req, res) => {
@@ -256,6 +288,13 @@ export const staffLogout = (req, res) => {
 };
 
 export const checkStaffSession = (req, res) => {
+  console.log('Checking staff session:', {
+    sessionExists: !!req.session,
+    sessionId: req.sessionID,
+    staffData: req.session.staff,
+    isAuthenticated: !!req.session.staff?.authenticated,
+  });
+
   res.json({
     isAuthenticated: !!req.session.staff?.authenticated,
     staff: req.session.staff,

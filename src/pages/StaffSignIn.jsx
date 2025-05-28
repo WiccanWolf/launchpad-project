@@ -53,6 +53,8 @@ const StaffSignIn = ({ baseUrl }) => {
     setIsLoading(true);
 
     try {
+      console.log('Attempting login to:', `${baseUrl}staff-login`);
+
       const response = await fetch(`${baseUrl}staff-login`, {
         method: 'POST',
         headers: {
@@ -62,21 +64,49 @@ const StaffSignIn = ({ baseUrl }) => {
         credentials: 'include',
       });
 
+      console.log('Login response status:', response.status);
+      console.log(
+        'Login response headers:',
+        Object.fromEntries(response.headers.entries())
+      );
+
       const data = await response.json();
+      console.log('Login response data:', data);
 
       if (response.ok) {
+        // Store token immediately if provided
+        if (data.token) {
+          localStorage.setItem('token', data.token);
+          console.log('Token stored:', data.token);
+        }
+
+        // Add a small delay to ensure session is properly set
+        console.log('Waiting for session to be established...');
+        await new Promise((resolve) => setTimeout(resolve, 100));
+
+        console.log('Checking session at:', `${baseUrl}check-staff-session`);
+
         const sessionCheck = await fetch(`${baseUrl}check-staff-session`, {
+          method: 'GET',
           credentials: 'include',
+          headers: {
+            'Content-Type': 'application/json',
+            // Include token in header if available
+            ...(data.token && { Authorization: `Bearer ${data.token}` }),
+          },
         });
+
+        console.log('Session check status:', sessionCheck.status);
+        console.log(
+          'Session check headers:',
+          Object.fromEntries(sessionCheck.headers.entries())
+        );
+
         const sessionData = await sessionCheck.json();
+        console.log('Session data:', sessionData);
+
         if (sessionData.isAuthenticated) {
-          toast({
-            title: 'Login successful',
-            description: 'Welcome back! Redirecting to dashboard...',
-            status: 'success',
-            duration: 3000,
-            isClosable: true,
-          });
+          // Success - store auth data and redirect
           localStorage.setItem(
             'staffAuth',
             JSON.stringify({
@@ -84,33 +114,111 @@ const StaffSignIn = ({ baseUrl }) => {
               timestamp: Date.now(),
             })
           );
-          setTimeout(() => navigate('/staff/dashboard'), 2000);
-        } else {
-          throw new Error('Session Creation Failed');
-        }
 
-        if (data.token) {
-          localStorage.setItem('token', data.token);
+          toast({
+            title: 'Login successful',
+            description: 'Welcome back! Redirecting to dashboard...',
+            status: 'success',
+            duration: 3000,
+            isClosable: true,
+          });
+
+          console.log('Logged in Staff:', data.staff);
+
+          // Clear form
+          setFormData({ email: '', password: '' });
+          setMessage('');
+
+          // Redirect after short delay
+          setTimeout(() => navigate('/'), 2000);
+        } else {
+          // Session check failed - but login seemed successful
+          console.error(
+            'Session creation failed. Login response was OK but session check failed.'
+          );
+          console.error('This might indicate:');
+          console.error('1. Backend session creation issue');
+          console.error('2. Cookie/session configuration problem');
+          console.error('3. Timing issue between login and session check');
+
+          // Try to proceed anyway if we have a token
+          if (data.token) {
+            console.log(
+              'Proceeding with token-based auth despite session check failure'
+            );
+
+            localStorage.setItem(
+              'staffAuth',
+              JSON.stringify({
+                email: formData.email,
+                timestamp: Date.now(),
+              })
+            );
+
+            toast({
+              title: 'Login successful',
+              description: 'Welcome back! (Session warning - check console)',
+              status: 'warning',
+              duration: 4000,
+              isClosable: true,
+            });
+
+            setFormData({ email: '', password: '' });
+            setMessage('');
+            setTimeout(() => navigate('/'), 2000);
+          } else {
+            throw new Error(
+              'Session creation failed - no session or token available'
+            );
+          }
         }
-        setFormData({ email: '', password: '' });
-        setMessage('');
-        console.log('Logged in Staff:', data.staff);
-        navigate('/');
       } else {
+        // Login request failed
+        console.error('Login request failed:', response.status, data);
         setMessage(
           data.message || 'Login failed. Please check your credentials.'
         );
       }
     } catch (error) {
       console.error('Login error:', error);
-      setMessage('Network error. Please try again.');
-      toast({
-        title: 'Connection Error',
-        description: 'Unable to connect to the server. Please try again.',
-        status: 'error',
-        duration: 3000,
-        isClosable: true,
-      });
+
+      // More specific error handling
+      if (error.message.includes('Session creation failed')) {
+        setMessage(
+          'Session error. Please try logging in again or contact support.'
+        );
+        toast({
+          title: 'Session Error',
+          description:
+            'There was an issue creating your session. Please try again.',
+          status: 'error',
+          duration: 4000,
+          isClosable: true,
+        });
+      } else if (
+        error.name === 'TypeError' &&
+        error.message.includes('fetch')
+      ) {
+        setMessage(
+          'Network error. Please check your connection and try again.'
+        );
+        toast({
+          title: 'Connection Error',
+          description: 'Unable to connect to the server. Please try again.',
+          status: 'error',
+          duration: 3000,
+          isClosable: true,
+        });
+      } else {
+        setMessage('An unexpected error occurred. Please try again.');
+        toast({
+          title: 'Login Error',
+          description: error.message || 'An unexpected error occurred.',
+          status: 'error',
+          duration: 3000,
+          isClosable: true,
+        });
+      }
     } finally {
       setIsLoading(false);
     }
