@@ -11,9 +11,11 @@ import {
 } from '@chakra-ui/react';
 import { Link as RouterLink } from 'react-router-dom';
 import LogoutButton from './LogoutButton';
+import StaffLogoutButton from './StaffLogoutButton';
 
 const Navbar = () => {
   const { isAuthenticated } = useAuth0();
+  const isStaff = localStorage.getItem('staffAuth');
   const bgColor = useColorModeValue('white', 'gray.800');
   const borderColor = useColorModeValue('gray.200', 'gray.700');
 
@@ -43,7 +45,7 @@ const Navbar = () => {
           <Spacer />
 
           <HStack spacing={4}>
-            {isAuthenticated && (
+            {(isAuthenticated || isStaff) && (
               <>
                 <ChakraLink
                   as={RouterLink}
@@ -77,6 +79,7 @@ const Navbar = () => {
                 >
                   Events
                 </ChakraLink>
+                {isAuthenticated ? <LogoutButton /> : <StaffLogoutButton />}
                 <LogoutButton />
               </>
             )}

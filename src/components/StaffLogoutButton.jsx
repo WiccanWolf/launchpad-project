@@ -2,7 +2,7 @@ import { Button } from '@chakra-ui/react';
 import { useNavigate } from 'react-router-dom';
 import { useToast } from '@chakra-ui/react';
 
-export const StaffLogoutButton = ({ baseUrl }) => {
+const StaffLogoutButton = ({ baseUrl }) => {
   const navigate = useNavigate();
   const toast = useToast();
 
@@ -14,13 +14,15 @@ export const StaffLogoutButton = ({ baseUrl }) => {
       });
 
       if (response.ok) {
+        localStorage.remoteItem('staffAuth');
+        localStorage.remoteItem('token');
         toast({
           title: 'Logged out successfully',
           status: 'success',
           duration: 2000,
           isClosable: true,
         });
-        navigate('/');
+        navigate('/', { replace: true });
       }
     } catch (error) {
       console.error('Logout error:', error);
@@ -40,3 +42,5 @@ export const StaffLogoutButton = ({ baseUrl }) => {
     </Button>
   );
 };
+
+export default StaffLogoutButton;
