@@ -60,7 +60,7 @@ const StaffSignUp = ({ baseUrl }) => {
     setIsLoading(true);
 
     try {
-      const response = await fetch(`${baseUrl}staff`, {
+      const response = await fetch(`${baseUrl}staff-signup`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

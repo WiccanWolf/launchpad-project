@@ -12,7 +12,7 @@ const LogoutButton = () => {
         size='sm'
         onClick={() =>
           logout({
-            returnTo: `http://localhost:5173`,
+            returnTo: `https://flourishcommunity.netlify.app/`,
           })
         }
       >
