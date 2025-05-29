@@ -20,9 +20,8 @@ import { CalendarIcon, ExternalLinkIcon } from '@chakra-ui/icons';
 import { keyframes } from '@emotion/react';
 import { useAuth0 } from '@auth0/auth0-react';
 
-const Home = ({ baseUrl }) => {
+const Home = ({ baseUrl, isStaff }) => {
   const { isAuthenticated } = useAuth0();
-  const isStaff = localStorage.getItem('staffAuth');
 
   const animation = keyframes`to {background-position: 200%};`;
   const [showForm, setShowForm] = useState(false);

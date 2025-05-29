@@ -385,24 +385,24 @@ END:VCALENDAR`;
           ))}
         </SimpleGrid>
 
-        {totalPages > 1 && (
+        {totalPages > 0 && (
           <Flex justify='center' align='center' gap={4} pt={8}>
             <Button
               variant='outline'
-              colorScheme='brown'
+              colorScheme='brand'
               onClick={() => setCurrentPage((prev) => Math.max(prev - 1, 1))}
               isDisabled={currentPage === 1}
             >
               Previous
             </Button>
 
-            <Badge colorScheme='brown' px={4} py={2} fontSize='md'>
+            <Badge colorScheme='brand.50' px={4} py={2} fontSize='md'>
               Page {currentPage} of {totalPages}
             </Badge>
 
             <Button
               variant='outline'
-              colorScheme='brown'
+              colorScheme='brand'
               onClick={() =>
                 setCurrentPage((prev) => Math.min(prev + 1, totalPages))
               }

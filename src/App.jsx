@@ -14,7 +14,7 @@ import { extendTheme, Center } from '@chakra-ui/react';
 import StaffSignIn from './pages/StaffSignIn';
 import LoginSelection from './components/LoginSelection';
 import StaffSignUp from './pages/StaffSignUp';
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 
 const theme = extendTheme({
   colors: {
@@ -44,12 +44,16 @@ const baseUrl = import.meta.env.VITE_HOSTED_URI;
 
 const App = () => {
   const { isAuthenticated, isLoading } = useAuth0();
-  const isStaff = localStorage.getItem('staffAuth');
+  const [isStaff, setIsStaff] = useState(
+    localStorage.getItem('staffAuth') === 'true'
+  );
 
   useEffect(() => {
-    if (!isLoading && (isAuthenticated || isStaff)) {
+    const token = localStorage.getItem('token');
+    if (token) {
+      setIsStaff(true);
     }
-  }, [isAuthenticated, isStaff, isLoading]);
+  }, []);
 
   if (isLoading) {
     return <div>Loading...</div>;
@@ -60,7 +64,7 @@ const App = () => {
       <Center minH='100vh' bg='brand.50' px={4}>
         <Router>
           <Box minH='100vh' bg='gray.50'>
-            {(isAuthenticated || isStaff) && <Navbar />}
+            {(isAuthenticated || isStaff) && <Navbar isStaff={isStaff} />}
             <Box as='main' pt='4'>
               <Routes>
                 <Route
@@ -77,7 +81,7 @@ const App = () => {
                   path='/home'
                   element={
                     isAuthenticated || isStaff ? (
-                      <Home baseUrl={baseUrl} />
+                      <Home isStaff={isStaff} baseUrl={baseUrl} />
                     ) : (
                       <Navigate to='/' replace />
                     )

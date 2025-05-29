@@ -23,6 +23,8 @@ import {
   useToast,
 } from '@chakra-ui/react';
 import { Eye, EyeOff, Lock } from 'lucide-react';
+import axios from 'axios';
+import { Navigate } from 'react-router-dom';
 
 const StaffSignIn = ({ baseUrl }) => {
   const toast = useToast();
@@ -48,19 +50,15 @@ const StaffSignIn = ({ baseUrl }) => {
     setIsLoading(true);
 
     try {
-      const response = await fetch(`${baseUrl}staff-login`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(formData),
-        credentials: 'include',
+      const response = await axios.post(`${baseUrl}staff-login`, formData, {
+        withCredentials: true,
       });
 
       const { token } = response.data;
 
       if (token) {
         localStorage.setItem('token', token);
+        localStorage.setItem('staffAuth', 'true');
         toast({
           title: 'Login successful',
           description: 'Welcome back! Redirecting to home...',
@@ -68,14 +66,12 @@ const StaffSignIn = ({ baseUrl }) => {
           duration: 3000,
           isClosable: true,
         });
-
         setTimeout(() => {
           window.location.href = '/home';
         }, 2000);
       }
     } catch (err) {
-      const errMsg = err.response?.data?.message || 'Login Failed';
-      setMessage(errMsg);
+      setMessage(err.response?.data?.message || 'Login Failed');
     } finally {
       setIsLoading(false);
     }

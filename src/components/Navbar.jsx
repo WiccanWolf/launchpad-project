@@ -5,7 +5,6 @@ import {
   Heading,
   Spacer,
   HStack,
-  useColorMode,
   useColorModeValue,
   Container,
   Link as ChakraLink,
@@ -16,10 +15,8 @@ import LogoutButton from './LogoutButton';
 import StaffLogoutButton from './StaffLogoutButton';
 import { FaUserShield } from 'react-icons/fa';
 
-const Navbar = () => {
+const Navbar = ({ isStaff }) => {
   const { isAuthenticated } = useAuth0();
-  const { colorMode } = useColorMode();
-  const isStaff = localStorage.getItem('staffAuth');
 
   const bgColor = isStaff
     ? useColorModeValue('brand.100', 'brand.800')
