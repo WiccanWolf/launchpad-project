@@ -163,7 +163,7 @@ const Home = ({ baseUrl, isStaff }) => {
           </Card>
         )}
 
-        <VStack spacing={6} w='full' maxW='4xl'>
+        {/* <VStack spacing={6} w='full' maxW='4xl'>
           <Heading size='lg' color='brand.700'>
             Brand Color Palette
           </Heading>
@@ -192,7 +192,7 @@ const Home = ({ baseUrl, isStaff }) => {
               </Card>
             ))}
           </SimpleGrid>
-        </VStack>
+        </VStack> */}
 
         <Card w='full' maxW='4xl' bg='brand.50' borderRadius='xl'>
           <CardBody p={8}>
