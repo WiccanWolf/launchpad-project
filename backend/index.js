@@ -28,7 +28,7 @@ mongoose.connect(process.env.ATLAS_URI, { dbName: 'events_sample' });
 
 app.use(
   cors({
-    origin: 'https://flourishcommunity.netlify.app/',
+    origin: 'https://flourishcommunity.netlify.app',
     methods: ['GET', 'POST', 'PUT', 'DELETE'],
     allowedHeaders: ['Content-Type', 'Authorization'],
     credentials: true,
