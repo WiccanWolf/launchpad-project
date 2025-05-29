@@ -157,7 +157,6 @@ END:VCALENDAR`;
           throw new Error('Failed to fetch events');
         }
         const data = await response.json();
-        console.log('API Response:', data);
         setEvents(data || []);
       } catch (error) {
         console.error(`Error retrieving events:`, error);
