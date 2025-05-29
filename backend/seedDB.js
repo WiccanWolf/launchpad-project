@@ -50,7 +50,11 @@ const seedDB = async () => {
         },
         organiser: staff._id,
       }));
+
       const createdEvents = await EventModel.insertMany(eventsData);
+      console.log(
+        `Created ${createdEvents.length} events for staff ${staff._id}`
+      );
       const eventIds = createdEvents.map((e) => e._id);
 
       await OrganiserModel.create({

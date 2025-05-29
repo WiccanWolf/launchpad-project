@@ -17,10 +17,14 @@ export const getEvents = async (req, res) => {
     const events = await EventModel.find().populate({
       path: 'organiser',
       select: 'firstName lastName email',
+      model: 'Staff',
     });
     res.json(events);
   } catch (err) {
     console.error(`Error fetching Events: ${err}`);
+    res
+      .status(500)
+      .json({ message: `Failed to fetch Events`, error: err.message });
   }
 };
 

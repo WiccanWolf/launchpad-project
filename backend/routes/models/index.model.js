@@ -11,7 +11,7 @@ const EventSchema = new mongoose.Schema(
       address: String,
       city: String,
     },
-    organiser: { type: mongoose.Schema.Types.ObjectId, ref: 'Organiser' },
+    organiser: { type: mongoose.Schema.Types.ObjectId, ref: 'Staff' },
   },
   { collection: 'events' }
 );
