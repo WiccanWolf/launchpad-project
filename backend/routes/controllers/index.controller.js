@@ -367,3 +367,23 @@ export const clearSession = (req, res) => {
       .json({ success: false, message: 'Internal Server Error' });
   }
 };
+
+export const authenticateToken = (req, res, next) => {
+  const authHeader = req.headers.authorization;
+  const token = authHeader && authHeader.split(' ')[1];
+
+  if (token) {
+    try {
+      const decoded = jwt.verify(token, process.env.JWT_SECRET);
+      req.user = decoded;
+      return next();
+    } catch (err) {
+      console.error(`JWT Verification Error: ${err}`);
+    }
+  }
+  if (req.session?.staff?.authenticated) {
+    req.user = req.session.staff;
+    return next();
+  }
+  res.status(401).json({ message: `Unauthorised` });
+};

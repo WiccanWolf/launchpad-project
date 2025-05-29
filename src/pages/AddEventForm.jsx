@@ -28,18 +28,24 @@ const AddEventForm = ({ baseUrl }) => {
     const getCurrentUser = async () => {
       try {
         const token = localStorage.getItem('token');
-        if (!token) {
-          console.error('No token found');
+        const staffAuth = localStorage.getItem('staffAuth');
+
+        if (!token && !staffAuth) {
+          console.error('No authentication tokens found');
           return;
         }
-
-        const response = await axios.get(`${baseUrl}auth/me`, {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        });
-
-        setCurrentUserId(response.data.userId || response.data._id);
+        if (token) {
+          const response = await axios.get(`${baseUrl}auth/me`, {
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
+          });
+          setCurrentUserId(response.data.userId);
+        }
+        if (staffAuth) {
+          const payload = JSON.parse(staffAuth);
+          setCurrentUserId(payload.id || payload.userId);
+        }
       } catch (error) {
         console.error('Error getting current user:', error);
 

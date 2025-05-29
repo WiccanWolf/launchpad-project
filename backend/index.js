@@ -8,6 +8,7 @@ import {
   addEvent,
   addStaff,
   addToGoogle,
+  authenticateToken,
   checkStaffSession,
   clearSession,
   createOrganiser,
@@ -56,18 +57,9 @@ app.use(
   })
 );
 
-const authenticateToken = (req, res, next) => {
-  if (req.session.staff) {
-    req.user = req.session.staff;
-    return next();
-  }
-  res.status(401).json({ message: 'Unauthorized' });
-};
-
 app.get('/events', getEvents);
-
 app.get('/auth/me', authenticateToken, (req, res) => {
-  res.json({ userId: req.user.id, ...req.user });
+  res.json({ userId: req.user.id, staffId: req.user.id, ...req.user });
 });
 
 app.get('/organisers', getOrganisers);
