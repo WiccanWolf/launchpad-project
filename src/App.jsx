@@ -14,7 +14,6 @@ import { extendTheme, Center } from '@chakra-ui/react';
 import StaffSignIn from './pages/StaffSignIn';
 import LoginSelection from './components/LoginSelection';
 import StaffSignUp from './pages/StaffSignUp';
-import { ProtectedStaffRoute } from './components/ProtectedStaffRoute';
 import { useEffect } from 'react';
 
 const theme = extendTheme({

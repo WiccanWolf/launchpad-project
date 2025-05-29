@@ -21,13 +21,10 @@ import {
   Link,
   Divider,
   useToast,
-  Flex,
 } from '@chakra-ui/react';
 import { Eye, EyeOff, Lock } from 'lucide-react';
-import { useNavigate } from 'react-router-dom';
 
 const StaffSignIn = ({ baseUrl }) => {
-  const navigate = useNavigate();
   const toast = useToast();
   const [formData, setFormData] = useState({
     email: '',
@@ -36,7 +33,6 @@ const StaffSignIn = ({ baseUrl }) => {
   const [showPassword, setShowPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [message, setMessage] = useState('');
-  const [rememberMe, setRememberMe] = useState(false);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -52,8 +48,6 @@ const StaffSignIn = ({ baseUrl }) => {
     setIsLoading(true);
 
     try {
-      console.log('Attempting login to:', `${baseUrl}staff-login`);
-
       const response = await fetch(`${baseUrl}staff-login`, {
         method: 'POST',
         headers: {
@@ -63,150 +57,44 @@ const StaffSignIn = ({ baseUrl }) => {
         credentials: 'include',
       });
 
-      console.log('Login response status:', response.status);
-      console.log(
-        'Login response headers:',
-        Object.fromEntries(response.headers.entries())
-      );
-
       const data = await response.json();
-      console.log('Login response data:', data);
 
       if (response.ok) {
         if (data.token) {
           localStorage.setItem('token', data.token);
-          console.log('Token stored:', data.token);
         }
 
-        console.log('Waiting for session to be established...');
-        await new Promise((resolve) => setTimeout(resolve, 100));
-
-        console.log('Checking session at:', `${baseUrl}check-staff-session`);
-
-        const sessionCheck = await fetch(`${baseUrl}check-staff-session`, {
-          method: 'GET',
-          credentials: 'include',
-          headers: {
-            'Content-Type': 'application/json',
-            ...(data.token && { Authorization: `Bearer ${data.token}` }),
-          },
-        });
-
-        console.log('Session check status:', sessionCheck.status);
-        console.log(
-          'Session check headers:',
-          Object.fromEntries(sessionCheck.headers.entries())
+        localStorage.setItem(
+          'staffAuth',
+          JSON.stringify({
+            email: formData.email,
+            timestamp: Date.now(),
+          })
         );
 
-        const sessionData = await sessionCheck.json();
-        console.log('Session data:', sessionData);
+        toast({
+          title: 'Login successful',
+          description: 'Welcome back! Redirecting to home...',
+          status: 'success',
+          duration: 3000,
+          isClosable: true,
+        });
 
-        if (sessionData.isAuthenticated || data.token) {
-          localStorage.setItem(
-            'staffAuth',
-            JSON.stringify({
-              email: formData.email,
-              timestamp: Date.now(),
-            })
-          );
-
-          toast({
-            title: 'Login successful',
-            description: 'Welcome back! Redirecting to dashboard...',
-            status: 'success',
-            duration: 3000,
-            isClosable: true,
-          });
-
-          console.log('Logged in Staff:', data.staff);
-
-          setFormData({ email: '', password: '' });
-          setMessage('');
-
-          setTimeout(() => navigate('/home'), 2000);
-        } else {
-          console.error(
-            'Session creation failed. Login response was OK but session check failed.'
-          );
-          console.error('This might indicate:');
-          console.error('1. Backend session creation issue');
-          console.error('2. Cookie/session configuration problem');
-          console.error('3. Timing issue between login and session check');
-
-          if (data.token) {
-            console.log(
-              'Proceeding with token-based auth despite session check failure'
-            );
-
-            localStorage.setItem(
-              'staffAuth',
-              JSON.stringify({
-                email: formData.email,
-                timestamp: Date.now(),
-              })
-            );
-
-            toast({
-              title: 'Login successful',
-              description: 'Welcome back! (Session warning - check console)',
-              status: 'warning',
-              duration: 4000,
-              isClosable: true,
-            });
-
-            setFormData({ email: '', password: '' });
-            setMessage('');
-            setTimeout(() => navigate('/home', { replace: true }), 2000);
-          } else {
-            throw new Error(
-              'Session creation failed - no session or token available'
-            );
-          }
-        }
+        setTimeout(() => {
+          window.location.href = '/home';
+        }, 2000);
       } else {
-        console.error('Login request failed:', response.status, data);
         setMessage(
           data.message || 'Login failed. Please check your credentials.'
         );
       }
     } catch (error) {
-      console.error('Login error:', error);
-
-      if (error.message.includes('Session creation failed')) {
-        setMessage(
-          'Session error. Please try logging in again or contact support.'
-        );
-        toast({
-          title: 'Session Error',
-          description:
-            'There was an issue creating your session. Please try again.',
-          status: 'error',
-          duration: 4000,
-          isClosable: true,
-        });
-      } else if (
-        error.name === 'TypeError' &&
-        error.message.includes('fetch')
-      ) {
+      if (error.name === 'TypeError' && error.message.includes('fetch')) {
         setMessage(
           'Network error. Please check your connection and try again.'
         );
-        toast({
-          title: 'Connection Error',
-          description: 'Unable to connect to the server. Please try again.',
-          status: 'error',
-          duration: 3000,
-          isClosable: true,
-        });
       } else {
         setMessage('An unexpected error occurred. Please try again.');
-        toast({
-          title: 'Login Error',
-          description: error.message || 'An unexpected error occurred.',
-          status: 'error',
-          duration: 3000,
-          isClosable: true,
-        });
       }
     } finally {
       setIsLoading(false);
@@ -254,24 +142,23 @@ const StaffSignIn = ({ baseUrl }) => {
                   <FormLabel color='gray.700' fontWeight='semibold'>
                     Email Address
                   </FormLabel>
-                  <InputGroup>
-                    <Input
-                      name='email'
-                      type='email'
-                      value={formData.email}
-                      onChange={handleChange}
-                      placeholder='Enter your email address'
-                      bg='white'
-                      borderColor='gray.300'
-                      _hover={{ borderColor: 'brand.400' }}
-                      _focus={{
-                        borderColor: 'brand.500',
-                        boxShadow: '0 0 0 1px var(--chakra-colors-brand-500)',
-                      }}
-                      size='lg'
-                    />
-                  </InputGroup>
+                  <Input
+                    name='email'
+                    type='email'
+                    value={formData.email}
+                    onChange={handleChange}
+                    placeholder='Enter your email address'
+                    bg='white'
+                    borderColor='gray.300'
+                    _hover={{ borderColor: 'brand.400' }}
+                    _focus={{
+                      borderColor: 'brand.500',
+                      boxShadow: '0 0 0 1px var(--chakra-colors-brand-500)',
+                    }}
+                    size='lg'
+                  />
                 </FormControl>
+
                 <FormControl isRequired>
                   <FormLabel color='gray.700' fontWeight='semibold'>
                     Password
@@ -312,17 +199,10 @@ const StaffSignIn = ({ baseUrl }) => {
                   </InputGroup>
                 </FormControl>
 
-                <Flex justify='space-between' w='full' align='center'>
-                  <Button
-                    variant='ghost'
-                    size='sm'
-                    onClick={() => setRememberMe(!rememberMe)}
-                    color={rememberMe ? 'brand.600' : 'gray.600'}
-                    fontWeight={rememberMe ? 'semibold' : 'normal'}
-                  >
-                    ✓ Remember me
-                  </Button>
-
+                <HStack justify='space-between' w='full'>
+                  <Text fontSize='sm' color='gray.600'>
+                    Stay signed in
+                  </Text>
                   <Link
                     color='brand.600'
                     fontSize='sm'
@@ -331,7 +211,7 @@ const StaffSignIn = ({ baseUrl }) => {
                   >
                     Forgot password?
                   </Link>
-                </Flex>
+                </HStack>
 
                 {message && (
                   <Alert status='error' borderRadius='md'>

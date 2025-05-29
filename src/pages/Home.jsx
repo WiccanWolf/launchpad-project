@@ -105,6 +105,8 @@ const Home = ({ baseUrl }) => {
             shadow='lg'
             borderRadius='xl'
             _hover={{ transform: 'translateY(-4px)', transition: 'all 0.2s' }}
+            opacity={isAuthenticated && !isStaff ? 0.5 : 1}
+            filter={isAuthenticated && !isStaff ? 'grayscale(100%)' : 'none'}
           >
             <CardBody p={8}>
               <VStack spacing={4}>
@@ -126,7 +128,7 @@ const Home = ({ baseUrl }) => {
                 <Text textAlign='center' color='gray.600'>
                   Organize your own community event and bring people together.
                 </Text>
-                {(isAuthenticated || isStaff) && (
+                {isStaff && (
                   <Button
                     colorScheme='brand'
                     variant='outline'
@@ -135,6 +137,19 @@ const Home = ({ baseUrl }) => {
                   >
                     {showForm ? 'Cancel' : 'Add New Event'}
                   </Button>
+                )}
+                {isAuthenticated && !isStaff && (
+                  <Box
+                    p={3}
+                    bg='gray.100'
+                    borderRadius='md'
+                    textAlign='center'
+                    maxW='sm'
+                  >
+                    <Text fontSize='sm' color='gray.600' fontWeight='medium'>
+                      Please Sign in as a Staff Member to create Events
+                    </Text>
+                  </Box>
                 )}
               </VStack>
             </CardBody>

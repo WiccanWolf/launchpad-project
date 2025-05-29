@@ -10,10 +10,11 @@ import {
   useToast,
 } from '@chakra-ui/react';
 import axios from 'axios';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 
 const AddEventForm = ({ baseUrl }) => {
   const toast = useToast();
+  const [currentUserId, setCurrentUserId] = useState(null);
 
   const [form, setForm] = useState({
     name: '',
@@ -22,6 +23,40 @@ const AddEventForm = ({ baseUrl }) => {
     location: { zip_code: '', address: '', city: '' },
     image: '',
   });
+
+  useEffect(() => {
+    const getCurrentUser = async () => {
+      try {
+        const token = localStorage.getItem('token');
+        if (!token) {
+          console.error('No token found');
+          return;
+        }
+
+        const response = await axios.get(`${baseUrl}auth/me`, {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        });
+
+        setCurrentUserId(response.data.userId || response.data._id);
+      } catch (error) {
+        console.error('Error getting current user:', error);
+
+        try {
+          const token = localStorage.getItem('token');
+          if (token) {
+            const payload = JSON.parse(atob(token.split('.')[1]));
+            setCurrentUserId(payload.userId || payload.id || payload.sub);
+          }
+        } catch (decodeError) {
+          console.error('Error decoding token:', decodeError);
+        }
+      }
+    };
+
+    getCurrentUser();
+  }, [baseUrl]);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -38,16 +73,41 @@ const AddEventForm = ({ baseUrl }) => {
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    try {
-      console.log(`Submitting: ${JSON.stringify(form, null, 2)}`);
-      const response = await axios.post(`${baseUrl}events`, form, {
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: `Bearer ${localStorage.getItem('token')}`,
-        },
-        withCredentials: true,
+    if (!currentUserId) {
+      toast({
+        title: 'Error',
+        description: 'Unable to identify current user. Please log in again.',
+        status: 'error',
+        duration: 3000,
+        isClosable: true,
       });
+      return;
+    }
+
+    try {
+      const formDataWithOrganiser = {
+        ...form,
+        organiser: currentUserId,
+      };
+
+      console.log(
+        `Submitting: ${JSON.stringify(formDataWithOrganiser, null, 2)}`
+      );
+
+      const response = await axios.post(
+        `${baseUrl}events`,
+        formDataWithOrganiser,
+        {
+          headers: {
+            'Content-Type': 'application/json',
+            Authorization: `Bearer ${localStorage.getItem('token')}`,
+          },
+          withCredentials: true,
+        }
+      );
+
       console.log(`Event Added: ${response.data}`);
+
       toast({
         title: 'Event added.',
         description: 'The event was successfully created.',
@@ -55,6 +115,7 @@ const AddEventForm = ({ baseUrl }) => {
         duration: 3000,
         isClosable: true,
       });
+
       setForm({
         name: '',
         description: '',

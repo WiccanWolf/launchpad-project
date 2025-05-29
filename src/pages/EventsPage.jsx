@@ -4,7 +4,6 @@ import {
   Button,
   Card,
   CardBody,
-  CardHeader,
   Container,
   Flex,
   Heading,
@@ -37,10 +36,6 @@ const EventsPage = ({ baseUrl }) => {
   const eventsPerPage = 20;
   const toast = useToast();
 
-  const capitaliseFirstLetter = (word) => {
-    return word.charAt(0).toUpperCase() + word.slice(1);
-  };
-
   const generateGoogleCalendarUrl = (event) => {
     const start = new Date(event.date);
     const end = new Date(start.getTime() + 60 * 60 * 1000);
@@ -52,9 +47,9 @@ const EventsPage = ({ baseUrl }) => {
     )}&dates=${formatDate(start)}/${formatDate(
       end
     )}&details=${encodeURIComponent(
-      event.description
+      event.description || ''
     )}&location=${encodeURIComponent(
-      event.location.address + ', ' + event.location.city
+      (event.location?.address || '') + ', ' + (event.location?.city || '')
     )}&sf=true&output=xml`;
   };
 
@@ -82,8 +77,10 @@ BEGIN:VEVENT
 SUMMARY:${event.name}
 DTSTART:${formatICSDate(start)}
 DTEND:${formatICSDate(end)}
-LOCATION:${event.location.address}, ${event.location.city}
-DESCRIPTION:${event.description}
+LOCATION:${
+      (event.location?.address || '') + ', ' + (event.location?.city || '')
+    }
+DESCRIPTION:${event.description || ''}
 END:VEVENT
 END:VCALENDAR`;
 
@@ -153,11 +150,11 @@ END:VCALENDAR`;
   };
 
   useEffect(() => {
-    const fetchOrganisers = async () => {
+    const fetchAllEvents = async () => {
       try {
-        const response = await fetch(`${baseUrl}organisers`);
+        const response = await fetch(`${baseUrl}events`);
         if (!response.ok) {
-          throw new Error('Failed to fetch organisers');
+          throw new Error('Failed to fetch events');
         }
         const data = await response.json();
         console.log('API Response:', data);
@@ -169,7 +166,7 @@ END:VCALENDAR`;
         setLoading(false);
       }
     };
-    fetchOrganisers();
+    fetchAllEvents();
   }, [baseUrl]);
 
   useEffect(() => {
@@ -201,12 +198,7 @@ END:VCALENDAR`;
   }
 
   const validEvents = events.filter(
-    (eventWrapper) =>
-      eventWrapper &&
-      eventWrapper.events &&
-      Array.isArray(eventWrapper.events) &&
-      eventWrapper.events.length > 0 &&
-      eventWrapper.organiser
+    (event) => event && event.name && event.date
   );
 
   const indexOfLastEvent = currentPage * eventsPerPage;
@@ -238,218 +230,146 @@ END:VCALENDAR`;
           Community Events
         </Heading>
 
-        <VStack spacing={6} align='stretch'>
-          {currentEvents.map((eventWrapper, index) => (
+        <SimpleGrid columns={{ base: 1, md: 2, lg: 3 }} spacing={6}>
+          {currentEvents.map((event, index) => (
             <Card
-              p={3}
-              key={eventWrapper._id || index}
+              key={event._id || index}
               shadow='lg'
               borderRadius='xl'
+              height='100%'
+              display='flex'
+              flexDirection='column'
             >
-              <CardHeader borderTopRadius='xl'>
-                <VStack align='start' spacing={2}>
-                  <Badge colorScheme='orange' fontSize='sm' fontWeight='bold'>
-                    Event Organiser
-                  </Badge>
-                  <Heading size='lg' fontStyle='italic' color='brown.700'>
-                    {eventWrapper.organiser?.firstName || 'Unknown'}{' '}
-                    {eventWrapper.organiser?.lastName || ''}
-                  </Heading>
-                  <Text color='gray.600' fontSize='sm'>
-                    Event Date:{' '}
-                    {eventWrapper.timestamp_day
-                      ? new Date(
-                          eventWrapper.timestamp_day
-                        ).toLocaleDateString()
-                      : 'Unknown date'}
-                  </Text>
-                </VStack>
-              </CardHeader>
+              <CardBody flex='1' display='flex' flexDirection='column'>
+                <VStack spacing={4} align='stretch' flex='1'>
+                  {event.image && (
+                    <Image
+                      src={event.image}
+                      alt={event.name}
+                      borderRadius='md'
+                      objectFit='cover'
+                      w='full'
+                      h='200px'
+                    />
+                  )}
 
-              <CardBody>
-                <VStack spacing={6} align='stretch'>
-                  <Heading size='md' color='brown.600'>
-                    Individual Events
-                  </Heading>
+                  <VStack align='start' spacing={2}>
+                    <Heading size='md' color='brown.700'>
+                      {event.name}
+                    </Heading>
 
-                  <SimpleGrid columns={{ base: 1, lg: 2 }} spacing={6}>
-                    {eventWrapper.events.map((singleEvent) => (
-                      <Card
-                        key={singleEvent._id}
-                        variant='outline'
-                        borderColor='brown.200'
-                        p={4}
-                        height='100%'
-                        display='flex'
-                        flexDirection='column'
-                      >
-                        <CardBody
-                          flex='1'
-                          display='flex'
-                          flexDirection='column'
+                    <Badge colorScheme='blue' alignSelf='start'>
+                      {new Date(event.date).toLocaleDateString()}
+                    </Badge>
+
+                    {event.organiser && (
+                      <VStack align='start' spacing={1}>
+                        <Badge colorScheme='orange' fontSize='xs'>
+                          Organized by
+                        </Badge>
+                        <Text fontSize='sm' color='gray.600'>
+                          {event.organiser.firstName} {event.organiser.lastName}
+                        </Text>
+                      </VStack>
+                    )}
+                  </VStack>
+
+                  <Box>
+                    <Text fontWeight='semibold' color='gray.700' mb={1}>
+                      Location:
+                    </Text>
+                    <Text color='gray.600' fontSize='sm'>
+                      {event.location?.address || 'Address not provided'}
+                      {event.location?.city && `, ${event.location.city}`}
+                      {event.location?.zip_code &&
+                        ` (${event.location.zip_code})`}
+                    </Text>
+                  </Box>
+
+                  <Box flex='1'>
+                    <Text fontWeight='semibold' color='gray.700' mb={2}>
+                      Description:
+                    </Text>
+                    <Text color='gray.600' fontSize='sm' noOfLines={4}>
+                      {event.description || 'No description provided'}
+                    </Text>
+                  </Box>
+
+                  <VStack spacing={3} align='stretch' mt='auto'>
+                    <Button
+                      colorScheme='brand'
+                      onClick={() =>
+                        setShowSignupFormId(
+                          showSignupFormId === event._id ? null : event._id
+                        )
+                      }
+                      leftIcon={<CalendarIcon />}
+                      size='sm'
+                    >
+                      {showSignupFormId === event._id ? 'Cancel' : 'Sign Up'}
+                    </Button>
+
+                    <Collapse in={showSignupFormId === event._id}>
+                      <VStack spacing={4} p={4} bg='gray.50' borderRadius='md'>
+                        <FormControl>
+                          <FormLabel fontSize='sm'>Email Address</FormLabel>
+                          <Input
+                            type='email'
+                            placeholder='Enter your email'
+                            value={emailInput}
+                            onChange={(e) => setEmailInput(e.target.value)}
+                            bg='white'
+                            size='sm'
+                          />
+                        </FormControl>
+
+                        <Button
+                          colorScheme='green'
+                          size='sm'
+                          w='full'
+                          onClick={() => handleSignup(event._id, event.name)}
+                          isLoading={signupLoading}
+                          loadingText='Registering...'
+                          isDisabled={!emailInput.trim()}
                         >
-                          <VStack spacing={4} align='stretch' flex='1'>
-                            {singleEvent.image && (
-                              <Image
-                                src={singleEvent.image}
-                                alt={singleEvent.name}
-                                borderRadius='md'
-                                objectFit='cover'
-                                w='full'
-                                h='100%'
-                                maxH='10rem'
-                              />
-                            )}
+                          Confirm Registration
+                        </Button>
 
-                            <Heading size='md' color='brown.700'>
-                              {singleEvent.name}
-                            </Heading>
+                        <Divider />
 
-                            <Badge colorScheme='blue' alignSelf='start'>
-                              {new Date(singleEvent.date).toLocaleDateString()}
-                            </Badge>
-
-                            <Box>
-                              <Text
-                                fontWeight='semibold'
-                                color='gray.700'
-                                mb={1}
-                              >
-                                Location:
-                              </Text>
-                              <Text color='gray.600' fontSize='sm'>
-                                {singleEvent.location?.address ||
-                                  'Address not provided'}
-                                ,{' '}
-                                {singleEvent.location?.city ||
-                                  'City not provided'}
-                                {singleEvent.location?.zip_code &&
-                                  ` (${singleEvent.location.zip_code})`}
-                              </Text>
-                            </Box>
-
-                            <Box>
-                              <Text
-                                fontWeight='semibold'
-                                color='gray.700'
-                                mb={2}
-                              >
-                                Description:
-                              </Text>
-                              <Text
-                                color='gray.600'
-                                fontSize='sm'
-                                noOfLines={10}
-                                w='full'
-                                maxW='512px'
-                              >
-                                {singleEvent.description ||
-                                  'No description provided'}
-                              </Text>
-                            </Box>
-
-                            <VStack spacing={3} align='stretch'>
-                              <Button
-                                colorScheme='brand'
-                                onClick={() =>
-                                  setShowSignupFormId(
-                                    showSignupFormId === singleEvent._id
-                                      ? null
-                                      : singleEvent._id
-                                  )
-                                }
-                                leftIcon={<CalendarIcon />}
-                                size='sm'
-                              >
-                                {showSignupFormId === singleEvent._id
-                                  ? 'Cancel'
-                                  : 'Sign Up'}
-                              </Button>
-
-                              <Collapse
-                                in={showSignupFormId === singleEvent._id}
-                              >
-                                <VStack
-                                  spacing={4}
-                                  p={4}
-                                  bg='gray.50'
-                                  borderRadius='md'
-                                >
-                                  <FormControl>
-                                    <FormLabel fontSize='sm'>
-                                      Email Address
-                                    </FormLabel>
-                                    <Input
-                                      type='email'
-                                      placeholder='Enter your email'
-                                      value={emailInput}
-                                      onChange={(e) =>
-                                        setEmailInput(e.target.value)
-                                      }
-                                      bg='white'
-                                      size='sm'
-                                    />
-                                  </FormControl>
-
-                                  <Button
-                                    colorScheme='green'
-                                    size='sm'
-                                    w='full'
-                                    onClick={() =>
-                                      handleSignup(
-                                        singleEvent._id,
-                                        singleEvent.name
-                                      )
-                                    }
-                                    isLoading={signupLoading}
-                                    loadingText='Registering...'
-                                    isDisabled={!emailInput.trim()}
-                                  >
-                                    Confirm Registration
-                                  </Button>
-
-                                  <Divider />
-
-                                  <VStack w='full' spacing={2}>
-                                    <Button
-                                      as='a'
-                                      href={generateGoogleCalendarUrl(
-                                        singleEvent
-                                      )}
-                                      target='_blank'
-                                      rel='noreferrer'
-                                      size='sm'
-                                      variant='outline'
-                                      colorScheme='brand'
-                                      w='full'
-                                      leftIcon={<ExternalLinkIcon />}
-                                    >
-                                      Google Calendar
-                                    </Button>
-                                    <Button
-                                      size='sm'
-                                      variant='outline'
-                                      colorScheme='brand'
-                                      w='full'
-                                      leftIcon={<DownloadIcon />}
-                                      onClick={() => downloadICS(singleEvent)}
-                                    >
-                                      Download iCalendar File
-                                    </Button>
-                                  </VStack>
-                                </VStack>
-                              </Collapse>
-                            </VStack>
-                          </VStack>
-                        </CardBody>
-                      </Card>
-                    ))}
-                  </SimpleGrid>
+                        <VStack w='full' spacing={2}>
+                          <Button
+                            as='a'
+                            href={generateGoogleCalendarUrl(event)}
+                            target='_blank'
+                            rel='noreferrer'
+                            size='sm'
+                            variant='outline'
+                            colorScheme='brand'
+                            w='full'
+                            leftIcon={<ExternalLinkIcon />}
+                          >
+                            Google Calendar
+                          </Button>
+                          <Button
+                            size='sm'
+                            variant='outline'
+                            colorScheme='brand'
+                            w='full'
+                            leftIcon={<DownloadIcon />}
+                            onClick={() => downloadICS(event)}
+                          >
+                            Download iCalendar
+                          </Button>
+                        </VStack>
+                      </VStack>
+                    </Collapse>
+                  </VStack>
                 </VStack>
               </CardBody>
             </Card>
           ))}
-        </VStack>
+        </SimpleGrid>
 
         {totalPages > 1 && (
           <Flex justify='center' align='center' gap={4} pt={8}>
