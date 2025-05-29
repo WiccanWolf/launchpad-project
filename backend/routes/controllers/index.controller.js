@@ -12,13 +12,17 @@ const JWT_SECRET =
   process.env.JWT_SECRET ||
   '1093d4817d1d54b5e09f58b67089a391570b9d1bbdf01fa0889e7487b5eaa36dc9ac3df17cb489f8d0fcb5dd8233f0014bfaabe894e3367bfaf3f275db8e12bc124798044854127229d929d5ffbfb9ad23d1facbeb6a6fc007050c526304ac0847e7346a2ece1cf2ff60330ac2bd0d904b3834e66e7c5fca2fba53b2c9a4886d';
 
-export const getEvents = (req, res) => {
-  EventModel.find()
-    .then((events) => {
-      console.log(events);
-      res.json(events);
-    })
-    .catch((err) => res.json(err));
+export const getEvents = async (req, res) => {
+  try {
+    const events = await EventModel.find().populate({
+      path: 'organiser',
+      select: 'firstName lastName email',
+      model: 'OrganiserModel',
+    });
+    res.json(events);
+  } catch (err) {
+    console.error(`Error fetching Events: ${err}`);
+  }
 };
 
 export const getOrganisers = async (_req, res) => {

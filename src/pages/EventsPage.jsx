@@ -265,7 +265,7 @@ END:VCALENDAR`;
                     {event.organiser && (
                       <VStack align='start' spacing={1}>
                         <Badge colorScheme='orange' fontSize='xs'>
-                          Organized by
+                          Organised by
                         </Badge>
                         <Text fontSize='sm' color='gray.600'>
                           {event.organiser.firstName} {event.organiser.lastName}
