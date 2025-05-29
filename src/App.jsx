@@ -96,18 +96,10 @@ const App = () => {
                   element={<StaffSignUp baseUrl={baseUrl} />}
                 />
 
-                {isAuthenticated && (
-                  <Route
-                    path='/events'
-                    element={
-                      isAuthenticated ? (
-                        <EventsPage baseUrl={baseUrl} />
-                      ) : (
-                        <Navigate to='/' replace />
-                      )
-                    }
-                  />
-                )}
+                <Route
+                  path='/events'
+                  element={<EventsPage baseUrl={baseUrl} />}
+                />
               </Routes>
             </Box>
           </Box>
