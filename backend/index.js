@@ -75,7 +75,7 @@ app.post('/events/calendar', addToGoogle);
 app.post('/clear-session', clearSession);
 app.post('/staff-login', staffSignIn);
 app.post('/staff-logout', staffLogout);
-app.post('/staff', addStaff);
+app.post('/staff-signup', addStaff);
 app.post('/organisers', createOrganiser);
 
 app.listen(PORT, () => console.log(`Server is running on port: ${PORT}`));
