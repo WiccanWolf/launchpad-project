@@ -62,7 +62,7 @@ const App = () => {
   return (
     <ChakraProvider theme={theme}>
       <Center minH='100vh' bg='brand.50' px={4}>
-        <Router>
+        <Router baseUrl={baseUrl}>
           <Box minH='100vh' bg='gray.50'>
             {(isAuthenticated || isStaff) && <Navbar isStaff={isStaff} />}
             <Box as='main' pt='4'>
