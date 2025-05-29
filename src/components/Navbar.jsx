@@ -53,7 +53,7 @@ const Navbar = ({ isStaff }) => {
             _hover={{ textDecoration: 'none' }}
           >
             <Heading size='lg' color='brand.700' fontWeight='bold'>
-              Community Events Platform
+              Flourish
               {isStaff && (
                 <Badge
                   ml={2}

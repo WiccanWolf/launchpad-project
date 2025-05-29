@@ -30,7 +30,7 @@ const LoginSelection = () => {
       <VStack spacing={8}>
         <VStack spacing={4} textAlign='center'>
           <Heading size='2xl' color='brand.700'>
-            Welcome to Community Events
+            Welcome to Flourish
           </Heading>
           <Text color='grey.600' fontSize='lg'>
             Choose how you'd like to sign in to access the platform:

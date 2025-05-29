@@ -32,7 +32,7 @@ const LoginButton = () => {
             Welcome
           </Heading>
           <Text color='gray.600' fontSize='lg'>
-            Please log in to access the Community Events Platform
+            Please log in to access the Flourish Events Platform
           </Text>
         </VStack>
 

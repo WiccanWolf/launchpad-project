@@ -54,7 +54,7 @@ const Home = ({ baseUrl, isStaff }) => {
             backgroundSize='200% auto'
             animation={`${animation} 7s ease-in-out infinite alternate`}
           >
-            Welcome to Community Events
+            Welcome to Flourish
           </Heading>
           <Text fontSize='xl' color='gray.600' maxW='2xl'>
             Discover and join amazing community events in your area. Connect
