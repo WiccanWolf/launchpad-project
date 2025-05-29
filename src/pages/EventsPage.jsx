@@ -262,15 +262,29 @@ END:VCALENDAR`;
                       {new Date(event.date).toLocaleDateString()}
                     </Badge>
 
-                    {event.organiser && (
+                    {event.organiser ? (
                       <VStack align='start' spacing={1}>
                         <Badge colorScheme='orange' fontSize='xs'>
                           Organised by
                         </Badge>
                         <Text fontSize='sm' color='gray.600'>
-                          {event.organiser.firstName} {event.organiser.lastName}
+                          {event.organiser.firstName} {event.organiser.lastName}{' '}
+                          {event.organiser.email && (
+                            <Text
+                              as='span'
+                              fontSize='xs'
+                              color='gray.500'
+                              display='block'
+                            >
+                              {event.organiser.email}
+                            </Text>
+                          )}
                         </Text>
                       </VStack>
+                    ) : (
+                      <Badge colorScheme='gray' fontSize='xs'>
+                        No Organiser Assigned
+                      </Badge>
                     )}
                   </VStack>
 

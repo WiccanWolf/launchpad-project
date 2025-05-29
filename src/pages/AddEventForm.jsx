@@ -90,10 +90,6 @@ const AddEventForm = ({ baseUrl }) => {
         organiser: currentUserId,
       };
 
-      console.log(
-        `Submitting: ${JSON.stringify(formDataWithOrganiser, null, 2)}`
-      );
-
       const response = await axios.post(
         `${baseUrl}events`,
         formDataWithOrganiser,
