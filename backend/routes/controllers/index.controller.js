@@ -17,7 +17,6 @@ export const getEvents = async (req, res) => {
     const events = await EventModel.find().populate({
       path: 'organiser',
       select: 'firstName lastName email',
-      model: 'StaffModel',
     });
     res.json(events);
   } catch (err) {
