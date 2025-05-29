@@ -56,7 +56,27 @@ app.use(
   })
 );
 
-app.get('/events', getEvents);
+const authenticateToken = (req, res, next) => {
+  if (req.session.staff) {
+    req.user = req.session.staff;
+    return next();
+  }
+  res.status(401).json({ message: 'Unauthorized' });
+};
+
+app.get('/events', async (req, res) => {
+  try {
+    const events = await EventModel.find().populate('organiser');
+    res.json(events);
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+});
+
+app.get('/auth/me', authenticateToken, (req, res) => {
+  res.json({ userId: req.user.id, ...req.user });
+});
+
 app.get('/organisers', getOrganisers);
 app.get('/check-staff-session', checkStaffSession);
 app.get('/staff/dashboard', verifyStaffSession, (req, res) => {
