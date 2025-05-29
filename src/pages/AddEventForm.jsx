@@ -14,8 +14,7 @@ import { useState, useEffect } from 'react';
 
 const AddEventForm = ({ baseUrl }) => {
   const toast = useToast();
-  const [currentUserId, setCurrentUserId] = useState(null);
-
+  const [currentUserId, setCurrentUserId] = useState('');
   const [form, setForm] = useState({
     name: '',
     description: '',
@@ -26,41 +25,17 @@ const AddEventForm = ({ baseUrl }) => {
 
   useEffect(() => {
     const getCurrentUser = async () => {
+      const token = localStorage.getItem('token');
+      if (!token) return;
       try {
-        const token = localStorage.getItem('token');
-        const staffAuth = localStorage.getItem('staffAuth');
-
-        if (!token && !staffAuth) {
-          console.error('No authentication tokens found');
-          return;
-        }
-        if (token) {
-          const response = await axios.get(`${baseUrl}auth/me`, {
-            headers: {
-              Authorization: `Bearer ${token}`,
-            },
-          });
-          setCurrentUserId(response.data.userId);
-        }
-        if (staffAuth) {
-          const payload = JSON.parse(staffAuth);
-          setCurrentUserId(payload.id || payload.userId);
-        }
-      } catch (error) {
-        console.error('Error getting current user:', error);
-
-        try {
-          const token = localStorage.getItem('token');
-          if (token) {
-            const payload = JSON.parse(atob(token.split('.')[1]));
-            setCurrentUserId(payload.userId || payload.id || payload.sub);
-          }
-        } catch (decodeError) {
-          console.error('Error decoding token:', decodeError);
-        }
+        const { data } = await axios.get(`${baseUrl}auth/me`, {
+          headers: { Authorization: `Bearer ${token}` },
+        });
+        setCurrentUserId(data.userId);
+      } catch (err) {
+        console.error('Error fetching user:', err);
       }
     };
-
     getCurrentUser();
   }, [baseUrl]);
 
@@ -78,7 +53,6 @@ const AddEventForm = ({ baseUrl }) => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-
     if (!currentUserId) {
       toast({
         title: 'Error',
@@ -91,33 +65,19 @@ const AddEventForm = ({ baseUrl }) => {
     }
 
     try {
-      const formDataWithOrganiser = {
-        ...form,
-        organiser: currentUserId,
-      };
-
-      const response = await axios.post(
-        `${baseUrl}events`,
-        formDataWithOrganiser,
-        {
-          headers: {
-            'Content-Type': 'application/json',
-            Authorization: `Bearer ${localStorage.getItem('token')}`,
-          },
-          withCredentials: true,
-        }
-      );
-
-      console.log(`Event Added: ${response.data}`);
-
+      const payload = { ...form, organiser: currentUserId };
+      await axios.post(`${baseUrl}events`, payload, {
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${localStorage.getItem('token')}`,
+        },
+      });
       toast({
-        title: 'Event added.',
-        description: 'The event was successfully created.',
+        title: 'Event added',
         status: 'success',
         duration: 3000,
         isClosable: true,
       });
-
       setForm({
         name: '',
         description: '',
@@ -126,14 +86,10 @@ const AddEventForm = ({ baseUrl }) => {
         image: '',
       });
     } catch (err) {
-      console.error('Full Error: ', {
-        message: err.message,
-        response: err.response?.data,
-        config: err.config,
-      });
+      console.error('Add event error:', err);
       toast({
         title: 'Error',
-        description: 'There was a problem adding the event.',
+        description: 'Could not add event',
         status: 'error',
         duration: 3000,
         isClosable: true,

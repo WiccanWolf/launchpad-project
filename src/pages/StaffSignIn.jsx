@@ -57,21 +57,10 @@ const StaffSignIn = ({ baseUrl }) => {
         credentials: 'include',
       });
 
-      const data = await response.json();
+      const { token } = response.data;
 
-      if (response.ok) {
-        if (data.token) {
-          localStorage.setItem('token', data.token);
-        }
-
-        localStorage.setItem(
-          'staffAuth',
-          JSON.stringify({
-            email: formData.email,
-            timestamp: Date.now(),
-          })
-        );
-
+      if (token) {
+        localStorage.setItem('token', token);
         toast({
           title: 'Login successful',
           description: 'Welcome back! Redirecting to home...',
@@ -83,19 +72,10 @@ const StaffSignIn = ({ baseUrl }) => {
         setTimeout(() => {
           window.location.href = '/home';
         }, 2000);
-      } else {
-        setMessage(
-          data.message || 'Login failed. Please check your credentials.'
-        );
       }
-    } catch (error) {
-      if (error.name === 'TypeError' && error.message.includes('fetch')) {
-        setMessage(
-          'Network error. Please check your connection and try again.'
-        );
-      } else {
-        setMessage('An unexpected error occurred. Please try again.');
-      }
+    } catch (err) {
+      const errMsg = err.response?.data?.message || 'Login Failed';
+      setMessage(errMsg);
     } finally {
       setIsLoading(false);
     }

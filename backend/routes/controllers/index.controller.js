@@ -129,8 +129,6 @@ export const addToGoogle = async (req, res) => {
 export const staffSignIn = async (req, res) => {
   const { email, password } = req.body;
   try {
-    console.log(`Staff login attempt for: ${email}`);
-
     const staff = await StaffModel.findOne({ email: email });
 
     if (!staff || !staff.passwordHash) {
@@ -143,23 +141,16 @@ export const staffSignIn = async (req, res) => {
       console.log(`Password mismatch for: ${email}`);
       return res.status(401).json({ message: 'Invalid Password' });
     }
-
-    console.log(`Password validated for: ${email}, creating token...`);
-
     const tokenPayload = {
       id: staff._id,
       email: staff.email,
       role: staff.role,
     };
-
     const token = jwt.sign(tokenPayload, JWT_SECRET, {
       expiresIn: '24h',
       issuer: 'launchpad-events',
       audience: 'staff',
     });
-
-    console.log(`Token created for: ${email}`);
-
     if (req.session) {
       req.session.staff = {
         id: staff._id,
@@ -168,7 +159,6 @@ export const staffSignIn = async (req, res) => {
         authenticated: true,
       };
     }
-
     res.status(200).json({
       message: 'Staff Login Successful',
       token: token,
