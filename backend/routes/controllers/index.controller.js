@@ -7,6 +7,8 @@ import {
   StaffModel,
 } from '../models/index.model.js';
 import { google } from 'googleapis';
+import dotenv from 'dotenv';
+dotenv.config();
 
 const JWT_SECRET =
   process.env.JWT_SECRET ||
@@ -374,7 +376,7 @@ export const authenticateToken = (req, res, next) => {
 
   if (token) {
     try {
-      const decoded = jwt.verify(token, process.env.JWT_SECRET);
+      const decoded = jwt.verify(token, JWT_SECRET);
       req.user = decoded;
       return next();
     } catch (err) {
