@@ -27,7 +27,7 @@ import {
 import { ExternalLinkIcon, CalendarIcon, DownloadIcon } from '@chakra-ui/icons';
 import { Trash2 } from 'lucide-react';
 
-const EventsPage = ({ baseUrl }) => {
+const EventsPage = ({ baseUrl, isStaff }) => {
   const [showSignupFormId, setShowSignupFormId] = useState(null);
   const [emailInput, setEmailInput] = useState('');
   const [events, setEvents] = useState([]);
