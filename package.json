@@ -10,7 +10,8 @@
     "lint": "eslint .",
     "preview": "vite preview",
     "start": "node -r @babel/register backend/index.js",
-    "seed": "node backend/seedDB.js"
+    "seed": "node backend/seedDB.js",
+    "deploy": "npm run build && netlify deploy --prod --dir=./dist"
   },
   "dependencies": {
     "@auth0/auth0-react": "^2.3.0",
@@ -62,6 +63,7 @@
     "globals": "^16.0.0",
     "postcss": "^8.5.3",
     "tailwindcss": "^4.1.6",
-    "vite": "^6.3.5"
+    "vite": "^6.3.5",
+    "vite-plugin-copy": "^0.1.6"
   }
 }
