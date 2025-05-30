@@ -28,6 +28,15 @@ import multer from 'multer';
 const PORT = 5100;
 const app = express();
 
+app.use(
+  cors({
+    origin: 'https://flourishcommunity.netlify.app',
+    methods: ['GET', 'POST', 'PUT', 'DELETE'],
+    allowedHeaders: ['Content-Type', 'Authorization'],
+    credentials: true,
+  })
+);
+app.use(express.json());
 cloudinary.config({
   cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
   api_key: process.env.CLOUDINARY_API_KEY,
@@ -45,16 +54,6 @@ const storage = new CloudinaryStorage({
 const upload = multer({ storage });
 
 mongoose.connect(process.env.ATLAS_URI, { dbName: 'events_sample' });
-
-app.use(
-  cors({
-    origin: 'https://flourishcommunity.netlify.app',
-    methods: ['GET', 'POST', 'PUT', 'DELETE'],
-    allowedHeaders: ['Content-Type', 'Authorization'],
-    credentials: true,
-  })
-);
-app.use(express.json());
 
 const sessionStore = MongoStore.create({
   mongoUrl: process.env.ATLAS_URI,
