@@ -12,6 +12,7 @@ import {
   checkStaffSession,
   clearSession,
   createOrganiser,
+  deleteEvent,
   getEvents,
   getOrganisers,
   signUp,
@@ -77,5 +78,7 @@ app.post('/staff-login', staffSignIn);
 app.post('/staff-logout', staffLogout);
 app.post('/staff-signup', addStaff);
 app.post('/organisers', createOrganiser);
+
+app.delete('/events/:eventId', verifyStaffSession, deleteEvent);
 
 app.listen(PORT, () => console.log(`Server is running on port: ${PORT}`));

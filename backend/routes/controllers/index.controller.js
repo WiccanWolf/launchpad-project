@@ -8,6 +8,7 @@ import {
 } from '../models/index.model.js';
 import { google } from 'googleapis';
 import dotenv from 'dotenv';
+import { Eraser } from 'lucide-react';
 dotenv.config();
 
 const JWT_SECRET =
@@ -378,4 +379,22 @@ export const authenticateToken = (req, res, next) => {
     return next();
   }
   res.status(401).json({ message: `Unauthorised` });
+};
+
+export const deleteEvent = async (req, res) => {
+  try {
+    const { eventId } = req.params;
+    const event = await EventModel.findById(eventId);
+    if (!event) {
+      return res.status(404).json({ message: 'Event Not Found' });
+    }
+    await EventModel.findByIdAndDelete(eventId);
+    await EventSignup.deleteMany({ eventId });
+    res.status(200).json({ message: 'Event Deleted Successfully' });
+  } catch (err) {
+    console.error(`Error Deleting Event: ${err}`);
+    res
+      .status(500)
+      .json({ message: 'Failed to Delete Event', error: err.message });
+  }
 };
