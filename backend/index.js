@@ -23,6 +23,7 @@ import {
 import { v2 as cloudinary } from 'cloudinary';
 import { CloudinaryStorage } from 'multer-storage-cloudinary';
 import MongoStore from 'connect-mongo';
+import multer from 'multer';
 
 const PORT = 5100;
 const app = express();
