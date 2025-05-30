@@ -8,19 +8,25 @@ import {
   VStack,
   Heading,
   useToast,
+  Image,
+  Flex,
+  Text,
 } from '@chakra-ui/react';
 import axios from 'axios';
 import { useState, useEffect } from 'react';
+import { Upload } from 'lucide-react';
 
 const AddEventForm = ({ baseUrl }) => {
   const toast = useToast();
   const [currentUserId, setCurrentUserId] = useState('');
+  const [isUploading, setIsUploading] = useState(false);
+  const [previewImage, setPreviewImage] = useState(null);
   const [form, setForm] = useState({
     name: '',
     description: '',
     date: '',
     location: { zip_code: '', address: '', city: '' },
-    image: '',
+    image: null,
   });
 
   useEffect(() => {
@@ -51,6 +57,40 @@ const AddEventForm = ({ baseUrl }) => {
     }
   };
 
+  const handleImageChange = (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+    const validTypes = ['image/jpeg', 'image/png', 'image/gif'];
+    const maxSize = 5 * 1024 * 1024;
+
+    if (!validTypes.includes(file.type)) {
+      toast({
+        title: 'Invalid file type',
+        description: 'Please upload a JPEG, PNG, or GIF image',
+        status: 'error',
+        duration: 3000,
+        isClosable: true,
+      });
+      return;
+    }
+    if (file.size > maxSize) {
+      toast({
+        title: 'File too large',
+        description: 'Maximum file size is 5MB',
+        status: 'error',
+        duration: 3000,
+        isClosable: true,
+      });
+      return;
+    }
+    setForm((prev) => ({ ...prev, image: file }));
+    const reader = new FileReader();
+    reader.onloadend = () => {
+      setPreviewImage(reader.result);
+    };
+    reader.readAsDataURL(file);
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (!currentUserId) {
@@ -64,36 +104,55 @@ const AddEventForm = ({ baseUrl }) => {
       return;
     }
 
+    setIsUploading(true);
+
     try {
-      const payload = { ...form, organiser: currentUserId };
-      await axios.post(`${baseUrl}events`, payload, {
+      const formData = new FormData();
+      formData.append('name', form.name);
+      formData.append('description', form.description);
+      formData.append('date', form.date);
+      formData.append('zip_code', form.location.zip_code);
+      formData.append('address', form.location.address);
+      formData.append('city', form.location.city);
+      formData.append('organiser', currentUserId);
+
+      if (form.image) {
+        formData.append('image', form.image);
+      }
+
+      await axios.post(`${baseUrl}events`, formData, {
         headers: {
-          'Content-Type': 'application/json',
+          'Content-Type': 'multipart/form-data',
           Authorization: `Bearer ${localStorage.getItem('token')}`,
         },
       });
+
       toast({
-        title: 'Event added',
+        title: 'Event added successfully',
         status: 'success',
         duration: 3000,
         isClosable: true,
       });
+
       setForm({
         name: '',
         description: '',
         date: '',
         location: { zip_code: '', address: '', city: '' },
-        image: '',
+        image: null,
       });
+      setPreviewImage(null);
     } catch (err) {
       console.error('Add event error:', err);
       toast({
         title: 'Error',
-        description: 'Could not add event',
+        description: err.response?.data?.err || 'Could not add event',
         status: 'error',
         duration: 3000,
         isClosable: true,
       });
+    } finally {
+      setIsUploading(false);
     }
   };
 
@@ -163,13 +222,38 @@ const AddEventForm = ({ baseUrl }) => {
           </FormControl>
 
           <FormControl>
-            <FormLabel>Image URL</FormLabel>
-            <Input
-              name='image'
-              value={form.image}
-              onChange={handleChange}
-              placeholder='Image URL'
-            />
+            <FormLabel>Event Image</FormLabel>
+            <Flex direction='column' gap={2}>
+              <Input
+                type='file'
+                accept='image/*'
+                onChange={handleImageChange}
+                hidden
+                id='image-upload'
+              />
+              <Button
+                as='label'
+                htmlFor='image-upload'
+                leftIcon={<Upload size={16} />}
+                variant='outline'
+                cursor='pointer'
+              >
+                Choose Image
+              </Button>
+              {previewImage && (
+                <Box mt={2}>
+                  <Image
+                    src={previewImage}
+                    alt='Preview'
+                    maxH='200px'
+                    borderRadius='md'
+                  />
+                  <Text fontSize='sm' color='gray.500' mt={1}>
+                    {form.image.name}
+                  </Text>
+                </Box>
+              )}
+            </Flex>
           </FormControl>
 
           <FormControl>
@@ -183,7 +267,13 @@ const AddEventForm = ({ baseUrl }) => {
             />
           </FormControl>
 
-          <Button type='submit' colorScheme='brand' width='full'>
+          <Button
+            type='submit'
+            colorScheme='brand'
+            width='full'
+            isLoading={isUploading}
+            loadingText='Uploading...'
+          >
             Add Event
           </Button>
         </VStack>

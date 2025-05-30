@@ -163,37 +163,6 @@ const Home = ({ baseUrl, isStaff }) => {
           </Card>
         )}
 
-        {/* <VStack spacing={6} w='full' maxW='4xl'>
-          <Heading size='lg' color='brand.700'>
-            Brand Color Palette
-          </Heading>
-          <SimpleGrid columns={{ base: 2, md: 3 }} spacing={4} w='full'>
-            {colorPalette.map((color) => (
-              <Card key={color.description} variant='outline' borderRadius='lg'>
-                <CardBody p={4}>
-                  <VStack spacing={3}>
-                    <Box
-                      w='full'
-                      h={16}
-                      bg={color.color}
-                      borderRadius='md'
-                      shadow='md'
-                    />
-                    <VStack spacing={1} textAlign='center'>
-                      <Text fontSize='xs' color='gray.500'>
-                        {color.description}
-                      </Text>
-                      <Badge variant='outline' fontSize='xs'>
-                        {color.color}
-                      </Badge>
-                    </VStack>
-                  </VStack>
-                </CardBody>
-              </Card>
-            ))}
-          </SimpleGrid>
-        </VStack> */}
-
         <Card w='full' maxW='4xl' bg='brand.50' borderRadius='xl'>
           <CardBody p={8}>
             <Flex

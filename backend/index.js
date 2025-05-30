@@ -20,10 +20,28 @@ import {
   staffSignIn,
   verifyStaffSession,
 } from './routes/controllers/index.controller.js';
+import { v2 as cloudinary } from 'cloudinary';
+import { CloudinaryStorage } from 'multer-storage-cloudinary';
 import MongoStore from 'connect-mongo';
 
 const PORT = 5100;
 const app = express();
+
+cloudinary.config({
+  cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
+  api_key: process.env.CLOUDINARY_API_KEY,
+  api_secret: process.env.CLOUDINARY_API_SECRET,
+});
+
+const storage = new CloudinaryStorage({
+  cloudinary: cloudinary,
+  params: {
+    folder: 'event_images',
+    allowed_format: ['jpg', 'jpeg', 'png'],
+    transformation: [{ width: 800, height: 600, crop: 'limit' }],
+  },
+});
+const upload = multer({ storage });
 
 mongoose.connect(process.env.ATLAS_URI, { dbName: 'events_sample' });
 
@@ -69,7 +87,7 @@ app.get('/staff/dashboard', verifyStaffSession, (req, res) => {
   res.json({ message: 'Welcome to your dashboard', staff: req.session.staff });
 });
 
-app.post('/events', addEvent);
+app.post('/events', upload.single('image'), addEvent);
 app.post('/events/:eventId/signup', signUp);
 app.post('/events/calendar', addToGoogle);
 

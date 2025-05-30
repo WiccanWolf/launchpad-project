@@ -7,8 +7,8 @@ import {
   StaffModel,
 } from '../models/index.model.js';
 import { google } from 'googleapis';
+import fs from 'fs/promises';
 import dotenv from 'dotenv';
-import { Eraser } from 'lucide-react';
 dotenv.config();
 
 const JWT_SECRET =
@@ -53,19 +53,22 @@ export const addEvent = async (req, res) => {
       });
     }
     const event = req.body;
-    const createdEvent = await EventModel.create({
+    const eventData = {
       name: event.name,
       description: event.description,
       date: new Date(event.date),
-      image: event.image,
       location: {
-        zip_code: event.location.zip_code,
-        address: event.location.address,
-        city: event.location.city,
+        zip_code: event.zip_code,
+        address: event.address,
+        city: event.city,
       },
       organiser: event.organiser,
-    });
-    console.log(`Created Event: ${createdEvent}`);
+    };
+
+    if (req.file) {
+      eventData.image = req.file.path;
+    }
+    const createdEvent = await EventModel.create(eventData);
     res.status(201).json(createdEvent);
   } catch (err) {
     console.error(`Error Creating Event: ${err}`);
