@@ -102,7 +102,7 @@ const App = () => {
 
                 <Route
                   path='/events'
-                  element={<EventsPage baseUrl={baseUrl} />}
+                  element={<EventsPage isStaff={isStaff} baseUrl={baseUrl} />}
                 />
               </Routes>
             </Box>

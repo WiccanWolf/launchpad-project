@@ -22,8 +22,10 @@ import {
   FormLabel,
   Collapse,
   useToast,
+  IconButton,
 } from '@chakra-ui/react';
 import { ExternalLinkIcon, CalendarIcon, DownloadIcon } from '@chakra-ui/icons';
+import { Trash2 } from 'lucide-react';
 
 const EventsPage = ({ baseUrl }) => {
   const [showSignupFormId, setShowSignupFormId] = useState(null);
@@ -94,6 +96,47 @@ END:VCALENDAR`;
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
+  };
+
+  const deleteEvent = async (eventId) => {
+    try {
+      const token = localStorage.getItem('token');
+      const response = await fetch(`${baseUrl}events/${eventId}`, {
+        method: 'DELETE',
+        headers: {
+          Authorization: `Bearer ${token}`,
+          'Content-Type': 'application/json',
+        },
+      });
+      if (!response.ok) {
+        throw new Error('Failed to Delete Event');
+      }
+      const updatedEvents = events.filter((event) => event._id !== eventId);
+      setEvents(updatedEvents);
+      toast({
+        title: 'Event deleted',
+        description: 'The event has been successfully deleted.',
+        status: 'success',
+        duration: 3000,
+        isClosable: true,
+      });
+    } catch (err) {
+      console.error(`Event Deletion Error: ${err}`);
+      toast({
+        title: 'Event deletion failed',
+        description:
+          err.message || 'An error occurred while deleting the event.',
+        status: 'error',
+        duration: 5000,
+        isClosable: true,
+      });
+    }
+  };
+
+  const confirmDelete = (eventId, eventName) => {
+    if (window.confirm(`Are you sure you want to delete "${eventName}"?`)) {
+      deleteEvent(eventId);
+    }
   };
 
   const handleSignup = async (eventId, eventName) => {
@@ -240,6 +283,21 @@ END:VCALENDAR`;
               flexDirection='column'
             >
               <CardBody flex='1' display='flex' flexDirection='column'>
+                {isStaff && (
+                  <Box position='absolute' top={2} right={2}>
+                    <IconButton
+                      aria-label='Delete event'
+                      icon={<Trash2 size={18} />}
+                      colorScheme='red'
+                      variant='ghost'
+                      size='sm'
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        confirmDelete(event._id, event.name);
+                      }}
+                    />
+                  </Box>
+                )}
                 <VStack spacing={4} align='stretch' flex='1'>
                   {event.image && (
                     <Image
