@@ -20,8 +20,11 @@ Built with:
 
 ---
 
-## 🔒 Staff Account Details
-
+## 🔒 Account Details
+### User
+- **Email:** `test@example.com`
+- **Password:** `testUSER123@`
+### Staff
 - **Email:** `test@example.com`
 - **Password:** `testSTAFF123`
 
