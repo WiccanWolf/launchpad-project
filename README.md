@@ -1,4 +1,5 @@
 # 🌼 [Flourish Community](https://flourishcommunity.netlify.app/)
+**Site URL:** https://flourishcommunity.netlify.app/
 
 **Flourish Community** is a full-stack web application that allows community members to explore and sign up for upcoming events, while staff can manage events directly through an intuitive interface. Users can easily download `.ics` calendar files or add events straight to their Google Calendar.
 
