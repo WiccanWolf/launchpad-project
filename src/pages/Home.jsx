@@ -26,21 +26,6 @@ const Home = ({ baseUrl, isStaff }) => {
   const animation = keyframes`to {background-position: 200%};`;
   const [showForm, setShowForm] = useState(false);
 
-  const colorPalette = [
-    { color: '#3C2519', description: 'Very Dark Brown' },
-    { color: '#5C4033', description: 'Dark Brown' },
-    { color: '#7B5E55', description: 'Lighter Dark Brown' },
-    {
-      color: '#A67B50',
-      description: 'Medium Light Brown',
-    },
-    {
-      color: '#C4A484',
-      description: 'Slightly Darker Light Brown',
-    },
-    { color: '#D2B48C', description: 'Light Brown' },
-  ];
-
   return (
     <Container maxW='7xl' py={12}>
       <VStack spacing={12}>

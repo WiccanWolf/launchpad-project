@@ -7,7 +7,6 @@ import {
   StaffModel,
 } from '../models/index.model.js';
 import { google } from 'googleapis';
-import fs from 'fs/promises';
 import dotenv from 'dotenv';
 dotenv.config();
 
@@ -57,6 +56,7 @@ export const addEvent = async (req, res) => {
       name: event.name,
       description: event.description,
       date: new Date(event.date),
+      duration: event.duration,
       location: {
         zip_code: event.zip_code,
         address: event.address,

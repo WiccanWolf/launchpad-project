@@ -25,6 +25,8 @@ const AddEventForm = ({ baseUrl }) => {
     name: '',
     description: '',
     date: '',
+    startTime: '',
+    endTime: '',
     location: { zip_code: '', address: '', city: '' },
     image: null,
   });
@@ -106,11 +108,33 @@ const AddEventForm = ({ baseUrl }) => {
 
     setIsUploading(true);
 
+    const calculateDuration = (start, end) => {
+      const [startHour, startMin] = start.split(':').map(Number);
+      const [endHour, endMin] = end.split(':').map(Number);
+
+      const startDate = new Date(0, 0, 0, startHour, startMin);
+      const endDate = new Date(0, 0, 0, endHour, endMin);
+
+      let diffMs = endDate - startDate;
+      if (diffMs < 0) diffMs += 24 * 60 * 60 * 1000;
+
+      const diffMins = Math.floor(diffMs / 60000);
+      const hours = Math.floor(diffMins / 60);
+      const minutes = diffMins % 60;
+
+      return `${hours > 0 ? `${hours} hour${hours > 1 ? 's' : ''}` : ''}${
+        hours > 0 && minutes > 0 ? ' ' : ''
+      }${minutes > 0 ? `${minutes} minute${minutes > 1 ? 's' : ''}` : ''}`;
+    };
+
+    const duration = calculateDuration(form.startTime, form.endTime);
+
     try {
       const formData = new FormData();
       formData.append('name', form.name);
       formData.append('description', form.description);
       formData.append('date', form.date);
+      formData.append('duration', duration);
       formData.append('zip_code', form.location.zip_code);
       formData.append('address', form.location.address);
       formData.append('city', form.location.city);
@@ -190,7 +214,24 @@ const AddEventForm = ({ baseUrl }) => {
               onChange={handleChange}
             />
           </FormControl>
-
+          <FormControl isRequired>
+            <FormLabel>Start Time</FormLabel>
+            <Input
+              type='time'
+              name='startTime'
+              value={form.startTime}
+              onChange={handleChange}
+            />
+          </FormControl>
+          <FormControl isRequired>
+            <FormLabel>End Time</FormLabel>
+            <Input
+              type='time'
+              name='endTime'
+              value={form.endTime}
+              onChange={handleChange}
+            />
+          </FormControl>
           <FormControl>
             <FormLabel>ZIP Code</FormLabel>
             <Input
